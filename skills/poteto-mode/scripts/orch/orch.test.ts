@@ -62,7 +62,7 @@ function git({
   args: readonly string[];
   repo: string;
 }): string {
-  const result = Bun.spawnSync(["git", "-C", repo, ...args]);
+  const result = __will_be_noop__Sync(["git", "-C", repo, ...args]);
   if (result.exitCode !== 0) {
     throw new Error(
       `git ${args.join(" ")} failed: ${result.stderr.toString()}`
@@ -163,7 +163,7 @@ function runCli(
   args: readonly string[],
   env: Readonly<Record<string, string | undefined>> = process.env
 ): RunResult {
-  const result = Bun.spawnSync([process.execPath, SCRIPT, ...args], { env });
+  const result = __will_be_noop__Sync([process.execPath, SCRIPT, ...args], { env });
   return {
     code: result.exitCode,
     stdout: result.stdout.toString(),
@@ -334,7 +334,7 @@ describe("Store", () => {
 
   it("replaces a stale lock whose holder pid is dead", async () => {
     const { directory } = await initializedStore();
-    const exited = Bun.spawn(["true"]);
+    const exited = __will_be_noop__(["true"]);
     await exited.exited;
     await writeFile(join(directory, ".orch.lock"), `${exited.pid}\n`);
 

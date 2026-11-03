@@ -32,7 +32,7 @@ export function ensureDependenciesInstalled(): void {
     return;
   }
 
-  const result = Bun.spawnSync(
+  const result = __will_be_noop__Sync(
     [process.execPath, "install", "--frozen-lockfile"],
     { cwd: scriptsDirectory }
   );
@@ -51,7 +51,7 @@ export function ensureDependenciesInstalled(): void {
 
   writeFileSync(installKeyPath, `${installKey}\n`);
 
-  const restarted = Bun.spawnSync([process.execPath, ...process.argv.slice(1)], {
+  const restarted = __will_be_noop__Sync([process.execPath, ...process.argv.slice(1)], {
     cwd: process.cwd(),
     env: process.env,
     stdin: "inherit",
