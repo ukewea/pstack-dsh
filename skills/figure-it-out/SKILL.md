@@ -10,7 +10,7 @@ When the task matches no playbook, design one. The deliverable before any code i
 
 ## Start
 
-Open a todolist whose first item is to read the Principles section of the **poteto-mode** skill. Then add the phases below as todos.
+Open a todolist whose first item is to read the Principles section of the [**poteto-mode**](../poteto-mode/SKILL.md) skill. Then add the phases below as todos.
 
 ## Phase A: Frame
 
@@ -27,7 +27,7 @@ Present the framing and tradeoffs before committing to a long run. Reversible wo
 Decompose into atomic, independently-landable units. Sequence riskiest-unknown-first. Scaffold and verification come before features (the **foundational-thinking** principle skill).
 
 - Build the verification harness before the work, with the baseline captured from the pre-change state, so the check reads as "old value vs new value".
-- For one-way-door design decisions, run the **architect** skill, which runs **arena**. Skip it for mechanical work whose shape is already concrete. A second arena over a settled design is over-engineering (the **laziness-protocol** principle skill).
+- For one-way-door design decisions, run the [**architect**](../architect/SKILL.md) skill, which runs **arena**. Skip it for mechanical work whose shape is already concrete. A second arena over a settled design is over-engineering (the **laziness-protocol** principle skill).
 - Decide what fans out. Parallelize only across genuine seams, and give each worker its own worktree or branch (the **separate-before-serializing-shared-state** principle skill). Don't over-fan. Spawn workers with `pstack_spawn` and the code role the step fits (`feature`, `refactoring`, `bug-fix`, and so on), or `poteto-agent` for ad-hoc helpers. Do not send model or effort. The overlay route for the role sets both.
 - Write the designed phase list down. That list is what the human reviews.
 
@@ -43,7 +43,7 @@ Each unit is an experiment. State the hypothesis, make the smallest change, meas
 
 ## Phase D: Keep the audit trail
 
-Log the run via the **show-me-your-work** skill. figure-it-out's work is usually ambitious enough to commit the trail so the reviewer can read it in the PR. The trail plus the diff is what lets the human come back and trust the work.
+Log the run via the [**show-me-your-work**](../show-me-your-work/SKILL.md) skill. figure-it-out's work is usually ambitious enough to commit the trail so the reviewer can read it in the PR. The trail plus the diff is what lets the human come back and trust the work.
 
 ## Phase E: Verify and hand back
 

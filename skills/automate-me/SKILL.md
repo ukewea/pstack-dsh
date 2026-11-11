@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 A guided flow for turning the user's working conventions into a skill agents will follow. The output is one `-mode` skill tailored to them (e.g. `jay-mode`, `priya-mode`).
 
-This skill orchestrates three others: an inline mining pass (see step 1), the **authoring-a-skill** playbook (authoring), and the **unslop** skill (prose discipline). It sequences them. It doesn't replace them.
+This skill orchestrates three others: an inline mining pass (see step 1), the **authoring-a-skill** playbook (authoring), and the [**unslop**](../unslop/SKILL.md) skill (prose discipline). It sequences them. It doesn't replace them.
 
 ## Flow
 
@@ -60,7 +60,7 @@ Group the combined signals into sections. Common ones (use only what applies):
 - **Process**: git worktrees, commits, PRs, review/merge tooling.
 - **Skills**: skill-authoring habits, fix-the-skill-first, proposing new skills.
 
-The **poteto-mode** skill shows the shape. Read it for granularity. Don't copy its content. The user's rules are not the same as poteto-mode's.
+The [**poteto-mode**](../poteto-mode/SKILL.md) skill shows the shape. Read it for granularity. Don't copy its content. The user's rules are not the same as poteto-mode's.
 
 ### 4. Draft the skill
 
@@ -74,7 +74,7 @@ Use the **authoring-a-skill** playbook skill to author the skill. Placement:
 
 ### 5. Iterate on prose
 
-Apply the **unslop** skill and the **authoring-a-skill** playbook's writing guidelines to every line.
+Apply the [**unslop**](../unslop/SKILL.md) skill and the **authoring-a-skill** playbook's writing guidelines to every line.
 
 Show the draft to the user and take feedback. Expect multiple iterations. Cut ruthlessly. A mode skill is not a manual.
 
