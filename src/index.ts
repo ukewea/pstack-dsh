@@ -66,7 +66,7 @@ export function apply(ctx: Context, config?: PluginConfig): void {
   registerOne(ctx, overlayWriteTool(host))
   registerOne(ctx, spawnTool(host))
   registerRolePresets(ctx)
-  ctx.skills.registerProvider(() => createSkillProvider())
+  ctx.skills.registerProvider(control => createSkillProvider(ctx, control))
   ctx.inject(['webServer', 'connection'], webCtx => {
     registerPstackSettingsRoutes(webCtx, host)
   })

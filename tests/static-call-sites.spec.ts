@@ -3,7 +3,7 @@ import { readdir, readFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { describe, it } from 'node:test'
 import { fileURLToPath } from 'node:url'
-import { createSkillProvider } from '../src/skills-provider.ts'
+import { openBundledSkills } from './support/bundled-skills.ts'
 import { spawnTool } from '../src/tools.ts'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
@@ -63,13 +63,17 @@ describe('skill call sites', () => {
   })
 
   it('registers poteto-mode as kebab-case', async () => {
-    const provider = createSkillProvider(SKILLS)
-    const listed = await provider.list()
-    assert.ok(listed.some(skill => skill.name === 'poteto-mode'))
-    assert.ok(!listed.some(skill => skill.name === 'Poteto Mode'))
-    const loaded = await provider.get({ name: 'poteto-mode' })
-    assert.ok(loaded)
-    assert.match(loaded.content, /pstack_spawn/)
+    const provider = openBundledSkills(SKILLS)
+    try {
+      const listed = (await provider.snapshot()).skills
+      assert.ok(listed.some(skill => skill.name === 'poteto-mode'))
+      assert.ok(!listed.some(skill => skill.name === 'Poteto Mode'))
+      const loaded = await provider.get('poteto-mode')
+      assert.ok(loaded)
+      assert.match(loaded.content, /pstack_spawn/)
+    } finally {
+      await provider.close()
+    }
   })
 
   it('makes Arena artifact handoff authoritative in DSH', async () => {
