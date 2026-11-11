@@ -123,9 +123,9 @@ A fresh install is usable without Settings → pstack and without `/setup-pstack
 
 Do not send `model` unless that pair was detected live. Missing overlay inherits the parent. Do not invent Cursor panel slugs.
 
-**effort.** 只提供该路由 `resolveModelInfo().reasoning.efforts` 列出的 id。没有 effort 字段就省略。skill 从不在 spawn 上发送 `reasoning_effort` 或 `thinking`。官方 `subagent` schema 没有这些字段。角色 effort 写在 overlay 里，由 `agent/request` 落到 `LlmCallConfig.reasoningEffort`。
+**effort.** 只提供该路由 `resolveModelInfo().reasoning.efforts` 列出的 id。没有 effort 字段就省略。skill 从不在 spawn 上发送 `reasoning_effort` 或 `thinking`。官方 `subagent` schema 没有这些字段。角色 effort 写在 overlay 里，spawn 时放进 child `agentOptions.reasoningEffort`，不经 `agent/request` 改路由。
 
-Effort is only the ids that route actually accepts. If the route has none, omit it. Skills never send `reasoning_effort` or `thinking` on spawn. Official `subagent` has no such field. Role effort lives in the overlay and is applied on `agent/request`.
+Effort is only the ids that route actually accepts. If the route has none, omit it. Skills never send `reasoning_effort` or `thinking` on spawn. Official `subagent` has no such field. Role effort lives in the overlay and is placed on the child `agentOptions.reasoningEffort` before the first request. `agent/request` does not change the route.
 
 **设置 / Settings.** 配置页是官方 Settings 里的 `settings.section`（id `pstack`，order 16）。只列出已登录路由；effort 只列出该路由 live `resolveModelInfo().reasoning.efforts`。空列表就是继承父对话。保存写同一份 overlay，不是第二份配置。
 

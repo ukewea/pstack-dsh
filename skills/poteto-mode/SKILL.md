@@ -97,7 +97,7 @@ Follow [`../setup-pstack/references/spawn.md`](../setup-pstack/references/spawn.
 
 DSH `subagent` has no worktree field. When workers must not share a tree, this parent creates the worktree and puts the path in the prompt. Nested spawn exists (default depth 3) but playbook fan-out still belongs on the parent when isolation or overlay routing matters.
 
-If `pstack_spawn` is missing, fall back to official `subagent` with only `description`, `prompt`, `run_in_background`.
+If `pstack_spawn` is missing, fall back to official `subagent` with `description`, `prompt`, and optional `cwd`. Do not send `run_in_background` on that tool.
 
 You own every subagent's work. Review the diff and write your own summary, don't pass through what it said. Fire a fresh subagent with consolidated scope rather than trusting a "done" summary. A second opinion is the same prompt with `role: independent-verifier` (a different overlay route when setup mapped one). Agreement is high-signal.
 

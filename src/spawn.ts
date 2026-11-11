@@ -1,3 +1,6 @@
+import type { AgentOptions } from '@deepseek-ai/dsh-agent'
+import { ReasoningEffortId } from '@deepseek-ai/dsh-llm'
+import type { LiveRoute } from './catalog-types.ts'
 import type { Overlay, OverlayRoute } from './overlay.ts'
 import { resolveRole } from './overlay.ts'
 import { normalizeRole } from './roles.ts'
@@ -10,11 +13,6 @@ export interface SpawnRequest {
   readonly routeIndex?: number
 }
 
-export interface AgentOptions {
-  provider?: string
-  model?: string
-}
-
 export interface ResolvedSpawn {
   readonly role: string
   readonly description: string
@@ -22,7 +20,6 @@ export interface ResolvedSpawn {
   readonly runInBackground: boolean
   readonly inherit: boolean
   readonly agentOptions?: AgentOptions
-  readonly reasoningEffort?: string
   readonly route?: OverlayRoute
 }
 
@@ -31,7 +28,10 @@ export function resolveSpawn(overlay: Overlay, request: SpawnRequest): ResolvedS
   const assignment = resolveRole(overlay, role)
   const inherit = assignment.inherit || assignment.routes.length === 0
   const index = request.routeIndex ?? 0
-  const route = inherit ? undefined : assignment.routes[index] ?? assignment.routes[0]
+  if (!inherit && (!Number.isInteger(index) || index < 0 || index >= assignment.routes.length)) {
+    throw new Error(`pstack_spawn route_index ${String(request.routeIndex)} is outside ${assignment.routes.length} route(s) for ${role}`)
+  }
+  const route = inherit ? undefined : assignment.routes[index]
   return {
     role,
     description: request.description,
@@ -41,10 +41,23 @@ export function resolveSpawn(overlay: Overlay, request: SpawnRequest): ResolvedS
     ...route === undefined
       ? {}
       : {
-        agentOptions: { provider: route.provider, model: route.model },
+        agentOptions: {
+          provider: route.provider,
+          model: route.model,
+          ...route.reasoningEffort === undefined ? {} : { reasoningEffort: ReasoningEffortId(route.reasoningEffort) },
+        },
         route,
-        ...route.reasoningEffort === undefined ? {} : { reasoningEffort: route.reasoningEffort },
       },
+  }
+}
+
+export function assertSelectableRoute(route: OverlayRoute, routes: readonly LiveRoute[]): void {
+  const match = routes.find(item => item.selectable && item.provider === route.provider && item.model === route.model)
+  if (match === undefined) {
+    throw new Error(`pstack_spawn route ${route.provider}/${route.model} is not a selectable live route. Refusing to substitute another route.`)
+  }
+  if (route.reasoningEffort !== undefined && !match.efforts.some(effort => effort.id === route.reasoningEffort)) {
+    throw new Error(`pstack_spawn route ${route.provider}/${route.model} does not list reasoning effort "${route.reasoningEffort}". Refusing to substitute another effort.`)
   }
 }
 

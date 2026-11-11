@@ -31,5 +31,6 @@ declare const Config: {
 declare const name = "pstack-dsh";
 declare const inject: string[];
 declare function apply(ctx: Context, config?: Config): void;
+declare function registerRolePresets(ctx: Context): void;
 //#endregion
-export { Config, type Config as ConfigType, apply, inject, name };
+export { Config, type Config as ConfigType, apply, inject, name, registerRolePresets };

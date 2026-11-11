@@ -13,7 +13,9 @@ pstack_spawn
   route_index: <optional, panel roles only>
 ```
 
-Allowed fields: `description`, `prompt`, `role`, `run_in_background`, `route_index`.
+Allowed fields: `description`, `prompt`, `role`, `cwd`, `run_in_background`, `route_index`.
+
+`run_in_background` defaults to true. True returns the child id immediately. The runtime notifies the parent once when the child finishes. False waits for the result in this call and does not also notify the parent. `cwd` is only the child's starting directory. It is not a sandbox. Parallel writers need separate directories.
 
 Forbidden on this call: `model`, `provider`, `reasoning_effort`, `thinking`, `isolation`, `subagent_type`, `environment`, `readonly`, `resume_from`.
 
@@ -21,18 +23,17 @@ Route and effort come from `$DSH_HOME/pstack-dsh.json` when Settings → pstack 
 
 ## Fallback
 
-If `pstack_spawn` is not registered, call official `subagent` with only `description`, `prompt`, `run_in_background`. That child inherits the parent. You lose per-role overlay.
+If `pstack_spawn` is not registered, call official `subagent` with `description`, `prompt`, and optional `cwd`. That schema has no `run_in_background`. The call returns a child id and the runtime notifies the parent once. You lose per-role overlay.
 
 ## Wait and cancel
 
-- Continuable (shipped `spawn` + `subagent` `backgroundMode: continuable`): start returns a subagent id. A settlement notice arrives when the child ends. `send_message` gives it more work. `interrupt_agent` stops the current turn.
-- One-shot background: collect with `job_output`, stop with `job_kill`.
+`run_in_background` true or omitted returns the child id. The runtime notifies the parent once when the child finishes. `run_in_background` false waits in this call and does not also notify the parent. There is no job. Do not collect with `job_output` or stop with `job_kill`.
 
-Do not poll `list_agents` for completion.
+Do not poll `list_agents` for completion. A later turn for that same child uses official `send_message` when the child is still continuable. `interrupt_agent` stops the current turn.
 
 ## Isolation
 
-DSH `subagent` has no isolation field. Children share the parent cwd (`packages/subagent/subagent-spawn-in-process/README.md`). When workers must not share a tree, the **parent** runs `git worktree add` (or a unique directory) and puts that path in each prompt.
+`cwd` is only the child's starting directory. It is not a sandbox or a private worktree. Parallel writers need separate directories. The parent creates those directories and passes one path per child.
 
 ## Roles
 

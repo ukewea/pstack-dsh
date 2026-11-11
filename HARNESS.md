@@ -14,7 +14,7 @@ Workbench: [dshx](https://github.com/aa2246740/dsh-external-plugin-devkit) (`dsh
 
 Install this repo as a DSH plugin on official DeepSeek Harness **0.1.5-rc.3** (`@deepseek-ai/dsh@0.1.5-rc.3`). `@deepseek-ai/dsh-*` peers are `^0.1.5-rc.3`. Do not write `~/.cursor/rules`. Do not invent Cursor panel slugs. Do not send grok `task` fields. Out of the box, children inherit this conversation's route. Configure roles in **Settings → pstack**. `/setup-pstack` is an optional pointer.
 
-Official model-facing `subagent` cannot take a pstack role or a per-call model. This plugin registers `pstack_spawn`, which calls `ctx.subagents.start` / `startContinuable` on the shipped `spawn` provider and applies overlay route plus effort on the `agent/request` waterfall.
+Official model-facing `subagent` cannot take a pstack role. This plugin registers `pstack_spawn`, which calls `ctx.subagents.startActivation` on the shipped `spawn` provider. Overlay provider, model, and reasoning effort go on the child `agentOptions` before the first request. Role limits use agent presets, not a prompt-only claim.
 
 ## Mapping: pstack need → DSH API
 
@@ -23,11 +23,11 @@ Official model-facing `subagent` cannot take a pstack role or a per-call model. 
 | Slash skill / poteto-mode | `ctx.skills` provider + `dsh-tool-skill` `skill` tool. User `/name` injection. Frontmatter: kebab-case `name`, `description`, optional `whenToUse`, `disable-model-invocation`, `user-invocable`. `name: Poteto Mode` is invalid; this port uses `poteto-mode`. | `packages/skill/tool-skill/README.md`; `docs/subsystems/skills.md`; `packages/skill/skill-filesystem/README.md`; `packages/skill/skill/src/index.ts` `SKILL_NAME` `/^[a-z0-9]+(?:-[a-z0-9]+)*$/` |
 | Plugin install | npm bundle `dsh.bundle.patch` → `dsh plugin --profile web add github:aa2246740/pstack-dsh` (pnpm, then restart Host and reload) | `docs/user/develop/basic/publish.md` |
 | Settings GUI | Official **`settings.section`** list slot. This plugin registers id `pstack`, order 16, nav from `ctx.locale` (zh/en). Browser `dsh.client` + Host `GET`/`PUT` `/plugins/pstack-dsh/settings` on `ctx.webServer`. Overlay file unchanged. **Hypothesis:** slash skills cannot call `openSection`; that method is onboarding-only on `SettingsRoot`. | `packages/client/ui-settings/src/client/contract/slots.ts` `settings.section`; `packages/client/ui-settings-models/src/client/index.ts`; `packages/client/ui-settings-plugins/src/client/index.ts`; `packages/client/ui-settings-general/src/client/SettingsRoot.tsx` `openSection`; `packages/host/webserver/src/index.ts` `webServer.register`; dsh-oauth-login `src/client/index.tsx` |
-| Spawn child | Model-facing official tool **`subagent`**: only `description`, `prompt`, `run_in_background`. No model, effort, isolation, `subagent_type`. This plugin's **`pstack_spawn`**: those three plus `role` and optional `route_index`. Internally `ctx.subagents.start('spawn', …)` / `startContinuable`. | `docs/tool-catalog.md` `#deepseek-aidsh-tool-subagent`; `packages/subagent/tool-subagent/src/index.ts`; `packages/bundle/base/cordis.patch.yml` `providerName: spawn`, `toolName: subagent`, `backgroundMode: continuable` |
+| Spawn child | Model-facing official tool **`subagent`**: `description`, `prompt`, optional `cwd`. This plugin's **`pstack_spawn`**: those plus `role`, optional `route_index`, and optional `run_in_background`. Internally `ctx.subagents.startActivation` with `delivery: parent` unless `run_in_background` is false. | `packages/subagent/tool-subagent/src/index.ts` on DSH 0.2.2-rc.1 |
 | Per-child model | `AgentOptions` `{ provider?, model?, maxTokens? }` on `SubagentStartRequest.agentOptions`. Not a model-facing `subagent` field. "Another model requires another named tool instance" unless a plugin sets `agentOptions` at start. Overlay maps a logged-in route onto that object. Omit it to inherit the parent. | `packages/core/agent/src/runtime-types.ts` `AgentOptions`; `packages/subagent/subagent/src/types.ts` `SubagentStartRequest.agentOptions`; `packages/subagent/tool-subagent/README.md` Config `agentOptions` |
-| Per-role reasoning effort | **Not on `subagent`.** `LlmCallConfig.reasoningEffort` via the `agent/request` waterfall. Adapter-owned via `resolveModelInfo().reasoning.efforts`. Empty efforts: omit. Never copy grok `xhigh/high/medium/low` or Cursor `max` unless that exact id is on **this** route. | `packages/llm/llm/src/call-config.ts` `LlmCallConfig`; `packages/llm/llm/src/types.ts` `LlmModelReasoningInfo`; `packages/core/agent/src/runtime-types.ts` `'agent/request'`; `packages/llm/llm/src/index.ts` `resolveModelInfo` rejects invalid effort metadata |
-| Wait | Continuable: settlement notice + `send_message`. One-shot background: `job_output`. Foreground: the tool awaits `run.result`. | tool-subagent README; `docs/tool-catalog.md` jobs / subagent-control |
-| Cancel | Continuable: `interrupt_agent`. Jobs: `job_kill`. | `docs/tool-catalog.md` `#deepseek-aidsh-tool-subagent-control`, `#deepseek-aidsh-tool-jobs` |
+| Per-role reasoning effort | **Not on `subagent`.** Overlay effort is `AgentOptions.reasoningEffort` on the child start request, checked against `resolveModelInfo().reasoning.efforts` before start. Empty or omitted effort inherits the parent. Never copy grok `xhigh/high/medium/low` or Cursor `max` unless that exact id is on **this** route. Do not change provider, model, or effort from `agent/request`. | `packages/core/agent/src/runtime-types.ts` `AgentOptions.reasoningEffort`; `packages/subagent/subagent/src/types.ts` `SubagentStartRequest.agentOptions`; `packages/core/agent-loop/src/agent.ts` rejects `agent/request` route changes |
+| Wait | `run_in_background` omitted or true: one parent settlement notice. `false`: this call returns the result and does not also notify the parent. No `job_output`. | `ctx.subagents.startActivation` `delivery` |
+| Cancel | `interrupt_agent` stops the current turn. No `job_kill`. | `docs/tool-catalog.md` `#deepseek-aidsh-tool-subagent-control` |
 | Isolation / worktree / Cursor cloud | **No field** on `subagent`. Spawn-in-process inherits parent cwd. Drop `environment: "cloud"`. Parent may `git worktree add` and put the path in the prompt. | `packages/subagent/subagent-spawn-in-process/README.md` |
 | Nested spawn | Default `maxDepth` **3** (tool-subagent Config). Playbooks that used nested Cursor Task + worktree still prefer parent-owned fan-out so isolation stays in the prompt. | `packages/subagent/tool-subagent/src/index.ts` `maxDepth` default `3` |
 | Todo | `todo_write({ todos: [{ content, status }] })` wholesale replace. Status: `pending` \| `in_progress` \| `completed`. **No** `id`, `merge`, `cancelled`. | `packages/todo/tool-todo/README.md` |
@@ -44,15 +44,15 @@ Official model-facing `subagent` cannot take a pstack role or a per-call model. 
 
 ## Official `subagent` fields the model may send
 
-From `docs/tool-catalog.md` `#deepseek-aidsh-tool-subagent` (generated from a booted plugin, not a guess):
+Installed `@deepseek-ai/dsh-tool-subagent` 0.2.2-rc.1, the package that corresponds to commit `66491b05e3f05ad35bcdd4f6cd7ed26041d9e3db` in this environment:
 
 - `description` (string, required)
 - `prompt` (string, required)
-- `run_in_background` (boolean, optional)
+- `cwd` (string, optional)
 
-Do not send `model`, `provider`, `reasoning_effort`, `thinking`, `isolation`, `subagent_type`, `environment`, `readonly`, `resume_from`. They are not on this schema.
+There is no `run_in_background`. The tool always returns `{ kind: 'activation', subagentId }` and starts with `delivery: parent`. Do not send `run_in_background` on this fallback. A booted tool may also list `agent_preset`, or `provider` / `model` / `reasoning_effort` when model selection is enabled; do not invent those when they are absent. This fallback inherits the parent and cannot apply the pstack overlay.
 
-Shipped `subagent` is continuable and defaults omitted `run_in_background` to background. Shipped `subagent_fork` is one-shot and defaults to foreground. This plugin talks to `spawn`, not `fork`.
+`pstack_spawn` is the call that still accepts `run_in_background`. Omitted or true returns the child id and the runtime notifies the parent once. `false` waits in the tool and does not also notify the parent.
 
 ## Default spawn shape
 
@@ -69,19 +69,17 @@ pstack_spawn
 
 Do not send model or effort on that call. Route and effort come from `$DSH_HOME/pstack-dsh.json` when that role is mapped to a live logged-in route; otherwise the child inherits this conversation.
 
-If `pstack_spawn` is missing, fall back to official `subagent` with only `description`, `prompt`, `run_in_background`. That path inherits the parent and cannot apply the overlay.
+If `pstack_spawn` is missing, fall back to official `subagent` with `description`, `prompt`, and optional `cwd`. Do not send `run_in_background` on that tool. That path inherits the parent and cannot apply the overlay.
 
-Then wait on the settlement notice (continuable) or `job_output` (one-shot). Cancel with `interrupt_agent` or `job_kill`.
+Then wait for the one parent settlement notice. `run_in_background: false` returns the result here instead, with no second notice. Cancel with `interrupt_agent`. Do not use `job_output` or `job_kill`.
 
 Code-writing delegates: the playbook role key (`feature`, `bug-fix`, …). Ad-hoc helpers with no role key: `poteto-agent`. `/no-comments`: `comment-sicko`. Independent verify: `independent-verifier`.
 
-## Effort home (hypothesis, labeled)
+## Effort home
 
 **Store:** `$DSH_HOME/pstack-dsh.json` `roles.<key>.routes[].reasoningEffort`, only when `resolveModelInfo(provider, model).reasoning.efforts` lists that id.
 
-**Apply:** `ctx.on('agent/request', …)` replaces `LlmCallConfig` for the child session id remembered at spawn. `AgentOptions` has no effort field, so spawn-time `agentOptions` can set provider/model only.
-
-If a future DSH build stops firing host-level `agent/request` for in-process children, inherit-parent still works; mapped effort would not. Do not invent a spawn-tool field to paper over that.
+**Apply:** `pstack_spawn` puts that provider, model, and effort on `SubagentStartRequest.agentOptions` before `startActivation`. The child Agent is created with those options, so the first model request already carries them. `agent/request` must not change the route or effort. A missing overlay inherits the parent. An unlisted route or effort fails the spawn and does not switch to another route.
 
 ## What Settings → pstack / `/setup-pstack` may list
 
@@ -105,5 +103,5 @@ Empty catalog: inherit parent. Tell the user to add a key or install/login [dsh-
 | grok `~/.grok/roles` | DSH does not use that tree. Overlay is `$DSH_HOME/pstack-dsh.json`. |
 | Cursor `~/.cursor/rules/pstack-models.mdc` | Cursor-only. |
 | grok `scheduler_create` / Cursor `/loop` | Not in DSH. Use `create_goal` when present. |
-| grok `get_task_output` | DSH settlement notice / `job_output`. |
+| grok `get_task_output` | One parent settlement notice, or the foreground tool result. Not `job_output`. |
 | Cursor `AskQuestion` / `TodoWrite` | DSH `ask_user_question` / `todo_write`. |

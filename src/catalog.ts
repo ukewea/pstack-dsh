@@ -22,14 +22,14 @@ export type { CatalogResult, LiveEffort, LiveRoute } from './catalog-types.ts'
 
 const API_KEY_REF = /^[A-Za-z_][A-Za-z0-9_]*$/
 
-interface LlmLike {
-  listProviders(): { id: string; name: string }[]
-  listConfigurableProviders?(): { provider: string; displayName: string; settingsNs: string; settingsPath: readonly string[] }[]
-  listModels(provider: string): Promise<{ id: string; name: string }[]>
+interface CatalogLlm {
+  listProviders(): readonly { id: string; name: string }[]
+  listConfigurableProviders?(): readonly { provider: string; displayName: string; settingsNs: string; settingsPath: readonly string[] }[]
+  listModels(provider: string): Promise<readonly { id: string; name: string }[]>
   resolveModelInfo(provider: string, model: string, signal?: AbortSignal): Promise<{
     id: string
     name: string
-    reasoning?: { efforts: LiveEffort[]; defaultEffort?: string }
+    reasoning?: { readonly efforts: readonly { id: string; name: string; description?: string }[]; defaultEffort?: string }
   }>
 }
 
@@ -42,7 +42,7 @@ interface SettingsLike {
 }
 
 export interface CatalogHost {
-  llm?: LlmLike
+  llm?: CatalogLlm
   credentials?: CredentialsLike
   settings?: SettingsLike
   dshHome?: string
@@ -142,7 +142,7 @@ async function readOauthStoreIds(dshHome: string): Promise<{ present: boolean; i
   return { present, ids: [...ids] }
 }
 
-function effortsOf(info: { reasoning?: { efforts: LiveEffort[]; defaultEffort?: string } }): {
+function effortsOf(info: { reasoning?: { readonly efforts: readonly { id: string; name: string; description?: string }[]; defaultEffort?: string } }): {
   efforts: LiveEffort[]
   defaultEffort?: string
 } {
@@ -218,7 +218,7 @@ export async function buildCatalog(host: CatalogHost, signal?: AbortSignal): Pro
     for (const provider of providers) {
       const storeId = storeIdForRoute(provider.id)
       const oauthSignedIn = storeId !== undefined && oauth.ids.includes(storeId)
-      let models: { id: string; name: string }[] = []
+      let models: readonly { id: string; name: string }[] = []
       try {
         models = await llm.listModels(provider.id)
       } catch {
@@ -245,7 +245,7 @@ export async function buildCatalog(host: CatalogHost, signal?: AbortSignal): Pro
       if (!selectable) continue
 
       for (const model of models) {
-        let resolved: { id: string; name: string; reasoning?: { efforts: LiveEffort[]; defaultEffort?: string } }
+        let resolved: { id: string; name: string; reasoning?: { readonly efforts: readonly { id: string; name: string; description?: string }[]; defaultEffort?: string } }
         try {
           resolved = await llm.resolveModelInfo(provider.id, model.id, signal)
         } catch {

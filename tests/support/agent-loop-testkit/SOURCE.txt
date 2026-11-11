@@ -1,0 +1,1 @@
+Published @deepseek-ai/dsh-agent-loop-testkit 0.2.2-rc.1, copied here so tests can import it without installing into the live DSH node_modules symlink.

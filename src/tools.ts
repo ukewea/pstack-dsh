@@ -1,3 +1,6 @@
+import type { Agent } from '@deepseek-ai/dsh-agent'
+import type { ContentBlock } from '@deepseek-ai/dsh-llm'
+import type { SubagentRuntime, SubagentStartRequest } from '@deepseek-ai/dsh-subagent'
 import type { ParameterSchemaSpec } from '@deepseek-ai/dsh-tools'
 import type { CatalogHost } from './catalog.ts'
 import { buildCatalog } from './catalog.ts'
@@ -10,8 +13,8 @@ import {
 } from './overlay.ts'
 import { resolveDshHome } from './home.ts'
 import { loadPersona } from './persona.ts'
-import { applyRoleConfig, RoleEffortMap } from './request-overlay.ts'
-import { resolveSpawn } from './spawn.ts'
+import { presetForRole } from './presets.ts'
+import { assertSelectableRoute, resolveSpawn } from './spawn.ts'
 import { isPstackRole, normalizeRole } from './roles.ts'
 import {
   SPAWN_PROVIDER,
@@ -25,27 +28,23 @@ export interface ToolDefinition {
   name: string
   description: string
   parameters: ParameterSchemaSpec
-  execute(args: Record<string, unknown>, exec: { signal?: AbortSignal; agent?: { id: string } }): Promise<unknown>
+  execute(args: Record<string, unknown>, exec: { signal?: AbortSignal; agent?: Agent }): Promise<unknown>
 }
 
-export interface SubagentHandle {
-  start(provider: string, request: Record<string, unknown>): Promise<{ id: string; result: Promise<{ output?: unknown; stopReason?: string }>; dispose?: () => Promise<void> | void }>
-  startContinuable?(args: { provider: string; label?: string; request: Record<string, unknown>; signal?: AbortSignal }): Promise<{ childId: string }>
-  getProvider?(name: string): { prepareContinuable?: unknown; capabilities?: { persona?: boolean } } | undefined
-}
+/** Public subagent methods this plugin calls. Signatures come from {@link SubagentRuntime}. */
+export type SpawnSubagents = Pick<SubagentRuntime, 'startActivation' | 'getProvider' | 'resolveMaxDepth'>
 
 export interface ToolHost {
   llm?: CatalogHost['llm']
   credentials?: CatalogHost['credentials']
   settings?: CatalogHost['settings']
-  subagents?: SubagentHandle
+  subagents?: SpawnSubagents
   dshHome?: string
   env?: NodeJS.ProcessEnv
   spawnProvider?: string
-  roles: RoleEffortMap
 }
 
-function textPrompt(prompt: string): unknown[] {
+function textPrompt(prompt: string): ContentBlock[] {
   return [{ type: 'text', text: prompt }]
 }
 
@@ -120,7 +119,7 @@ export function spawnTool(host: ToolHost): ToolDefinition {
   return {
     name: TOOL_SPAWN,
     description:
-      'Delegate a pstack role to a DSH subagent via ctx.subagents (spawn provider). Send description, prompt, role, and optional run_in_background. Do not send model, provider, reasoning_effort, thinking, isolation, or subagent_type. Route and effort come from $DSH_HOME/pstack-dsh.json when that role is mapped to a live logged-in route; otherwise the child inherits this conversation.',
+      'Delegate a pstack role through ctx.subagents.startActivation on the spawn provider. Send description, prompt, role, optional cwd, and optional run_in_background. Do not send model, provider, reasoning_effort, thinking, isolation, or subagent_type. A mapped overlay route is checked against the live catalog and placed on the child agentOptions before the first request. Omitted or true run_in_background returns the child id immediately and the runtime notifies the parent once. false waits for that result here and does not also notify the parent.',
     parameters: {
       description: {
         type: 'string',
@@ -137,9 +136,13 @@ export function spawnTool(host: ToolHost): ToolDefinition {
         required: true,
         description: 'pstack role key (feature, how-explainer, poteto-agent, comment-sicko, …).',
       },
+      cwd: {
+        type: 'string',
+        description: 'Initial child working directory. This is not a sandbox or a private worktree. Parallel writers need separate directories.',
+      },
       run_in_background: {
         type: 'boolean',
-        description: 'Default true. Continuable children return a subagent id; one-shot background returns a job-like start without waiting.',
+        description: 'Default true. true returns the child id and lets the runtime notify the parent once. false waits for the result in this call and does not also notify the parent.',
       },
       route_index: {
         type: 'number',
@@ -167,60 +170,68 @@ export function spawnTool(host: ToolHost): ToolDefinition {
       if (resolved.description.trim().length === 0) throw new Error('description is required')
       if (resolved.prompt.trim().length === 0) throw new Error('prompt is required')
 
+      if (resolved.route !== undefined) {
+        if (host.llm === undefined) {
+          throw new Error('pstack_spawn cannot check route authorization because the llm service is unavailable')
+        }
+        const catalog = await buildCatalog({
+          llm: host.llm,
+          credentials: host.credentials,
+          settings: host.settings,
+          dshHome: host.dshHome,
+          env: host.env,
+        }, exec.signal)
+        assertSelectableRoute(resolved.route, catalog.routes)
+      }
+
       const persona = await loadPersona(resolved.role)
+      const prompt = persona === undefined ? resolved.prompt : `${persona}\n\n${resolved.prompt}`
       const providerName = host.spawnProvider ?? SPAWN_PROVIDER
       const provider = subagents.getProvider?.(providerName)
-      const request: Record<string, unknown> = {
-        label: resolved.description,
-        prompt: textPrompt(resolved.prompt),
+      const preset = presetForRole(resolved.role)
+      const presetSupported = provider?.capabilities?.agentPreset === true && provider.inheritsParentContext !== true
+      if (preset.restrictsWrites && !presetSupported) {
+        throw new Error(`pstack_spawn role ${resolved.role} requires agent preset ${preset.id}, but provider "${providerName}" cannot apply an independent preset. Refusing to start with only a prompt restriction.`)
+      }
+      const signal = exec.signal ?? new AbortController().signal
+      const maxDepth = subagents.resolveMaxDepth?.()
+      const request: Omit<SubagentStartRequest, 'label' | 'signal'> = {
+        prompt: textPrompt(prompt),
         parent,
-        signal: exec.signal,
-        ...resolved.agentOptions ? { agentOptions: resolved.agentOptions } : {},
-        ...persona && provider?.capabilities?.persona !== false ? { persona } : {},
+        ...typeof args.cwd === 'string' && args.cwd.length > 0 ? { cwd: args.cwd } : {},
+        ...resolved.agentOptions === undefined ? {} : { agentOptions: resolved.agentOptions },
+        ...presetSupported ? { agentPreset: preset.id } : {},
+        ...maxDepth !== undefined ? { maxDepth } : {},
       }
-
-      const remember = (sessionId: string) => {
-        host.roles.remember(sessionId, {
-          role: resolved.role,
-          ...resolved.reasoningEffort ? { reasoningEffort: resolved.reasoningEffort } : {},
-          ...resolved.agentOptions?.provider ? { provider: resolved.agentOptions.provider } : {},
-          ...resolved.agentOptions?.model ? { model: resolved.agentOptions.model } : {},
-        })
-      }
-
-      if (resolved.runInBackground && typeof subagents.startContinuable === 'function' && provider?.prepareContinuable !== undefined) {
-        const started = await subagents.startContinuable({
-          provider: providerName,
-          label: resolved.description,
-          request,
-          signal: exec.signal,
-        })
-        remember(started.childId)
-        return { kind: 'continuable', subagentId: started.childId, role: resolved.role, inherit: resolved.inherit }
-      }
-
-      const run = await subagents.start(providerName, request)
-      remember(run.id)
+      const activation = await subagents.startActivation({
+        provider: providerName,
+        label: resolved.description,
+        request,
+        signal,
+        delivery: resolved.runInBackground ? 'parent' : 'caller',
+      })
       if (resolved.runInBackground) {
-        return { kind: 'foreground-detached', runId: run.id, role: resolved.role, inherit: resolved.inherit }
+        return { kind: 'activation', subagentId: activation.childId, role: resolved.role, inherit: resolved.inherit }
       }
-      const result = await run.result
-      await Promise.resolve(run.dispose?.())
-      return {
-        kind: 'foreground',
-        runId: run.id,
-        role: resolved.role,
-        inherit: resolved.inherit,
-        output: result.output ?? null,
-        stopReason: result.stopReason ?? 'completed',
+      const cancel = () => { void activation.dispose() }
+      signal.addEventListener('abort', cancel, { once: true })
+      try {
+        if (signal.aborted) await activation.dispose()
+        const result = await activation.result
+        await activation.dispose()
+        return {
+          kind: 'foreground',
+          subagentId: activation.childId,
+          role: resolved.role,
+          inherit: resolved.inherit,
+          output: result.output ?? null,
+          stopReason: result.stopReason ?? 'completed',
+        }
+      } finally {
+        signal.removeEventListener('abort', cancel)
       }
     },
   }
-}
-
-export function bindRequestOverlay(roles: RoleEffortMap) {
-  return (sessionId: string, config: Parameters<typeof applyRoleConfig>[0]) =>
-    applyRoleConfig(config, roles.lookup(sessionId))
 }
 
 export const ALL_TOOLS = [catalogTool, overlayReadTool, overlayWriteTool, spawnTool] as const
