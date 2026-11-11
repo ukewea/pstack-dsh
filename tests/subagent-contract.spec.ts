@@ -8,6 +8,7 @@ import SubagentRuntime from '@deepseek-ai/dsh-subagent'
 import type { Agent } from '@deepseek-ai/dsh-agent'
 import { SessionId } from '@deepseek-ai/dsh-session'
 import type { ResolvedSubagentStartRequest, SubagentResult } from '@deepseek-ai/dsh-subagent'
+import { defaultSkillsRoot } from '../src/skills-provider.ts'
 import { spawnTool } from '../src/tools.ts'
 
 function llmFor(efforts: { id: string; name: string }[]) {
@@ -181,6 +182,8 @@ describe('pstack spawn on DSH 0.2.2 subagent runtime', () => {
     assert.equal(seen[0]?.model, 'deepseek-chat')
     assert.equal(seen[0]?.effort, 'high')
     assert.match(seen[0]?.prompt ?? '', /add json/)
+    // poteto-agent reads poteto-mode from this absolute path and resolves leaf skills beside it.
+    assert.ok((seen[0]?.prompt ?? '').includes(join(defaultSkillsRoot(), 'poteto-mode', 'SKILL.md')))
     const childId = value && typeof value === 'object' && 'subagentId' in value ? String(value.subagentId) : ''
     assert.equal(childId, 'child-1')
     registered.runs[0]?.settle()
@@ -293,6 +296,7 @@ describe('pstack spawn on DSH 0.2.2 subagent runtime', () => {
     await tool.execute({ description: 'kill comments', prompt: 'review', role: 'comment-sicko' }, { agent: agentOf(parent), signal: new AbortController().signal })
     assert.equal(seen[0]?.agentPreset, 'pstack-comment-sicko')
     assert.match(seen[0]?.prompt ?? '', /I hate comments/)
+    assert.doesNotMatch(seen[0]?.prompt ?? '', /poteto-mode\/SKILL\.md/)
   })
 
   it('rejects a child that would pass the runtime depth cap', async () => {

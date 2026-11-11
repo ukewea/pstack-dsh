@@ -1,3 +1,4 @@
+import { join } from 'node:path'
 import type { Agent } from '@deepseek-ai/dsh-agent'
 import type { ContentBlock } from '@deepseek-ai/dsh-llm'
 import type { SubagentRuntime, SubagentStartRequest } from '@deepseek-ai/dsh-subagent'
@@ -23,6 +24,7 @@ import {
   TOOL_OVERLAY_WRITE,
   TOOL_SPAWN,
 } from './ids.ts'
+import { defaultSkillsRoot } from './skills-provider.ts'
 
 export interface ToolDefinition {
   name: string
@@ -46,6 +48,15 @@ export interface ToolHost {
 
 function textPrompt(prompt: string): ContentBlock[] {
   return [{ type: 'text', text: prompt }]
+}
+
+/**
+ * Where a poteto-agent child finds poteto-mode. Upstream asks the parent to pass this path;
+ * pstack_spawn supplies it so a child never searches for the skill.
+ */
+function potetoModeLocation(role: string): string | undefined {
+  if (normalizeRole(role) === 'comment-sicko') return undefined
+  return `poteto-mode: ${join(defaultSkillsRoot(), 'poteto-mode', 'SKILL.md')} (bundled pstack skills live beside it at ../<name>/SKILL.md).`
 }
 
 export function catalogTool(host: ToolHost): ToolDefinition {
@@ -185,7 +196,9 @@ export function spawnTool(host: ToolHost): ToolDefinition {
       }
 
       const persona = await loadPersona(resolved.role)
-      const prompt = persona === undefined ? resolved.prompt : `${persona}\n\n${resolved.prompt}`
+      const prompt = [persona, potetoModeLocation(resolved.role), resolved.prompt]
+        .filter((part): part is string => part !== undefined)
+        .join('\n\n')
       const providerName = host.spawnProvider ?? SPAWN_PROVIDER
       const provider = subagents.getProvider?.(providerName)
       const preset = presetForRole(resolved.role)
