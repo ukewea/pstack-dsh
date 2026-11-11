@@ -1,5 +1,5 @@
-/** Startup line `dshx verify-boot` looks for. */
-export const BOOT_MARKER = '[my-plugins/pstack-dsh] loaded'
+/** Startup line the plugin prints once it has loaded. */
+export const BOOT_MARKER = '[pstack-dsh] loaded'
 
 /** Cordis plugin / Loader row id. */
 export const PLUGIN_ID = 'pstack-dsh'

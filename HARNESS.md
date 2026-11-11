@@ -6,7 +6,6 @@ Sources: official pstack (`cursor/plugins` `pstack/`) and official DeepSeek Harn
 
 Sister port [pstack-grokbuild](https://github.com/aa2246740/pstack-grokbuild) is process lessons only. Do not copy its call sites.
 
-Workbench: [dshx](https://github.com/aa2246740/dsh-external-plugin-devkit) (`dshx kb cat start-here`). Official DSH source outranks dshx. dshx is not a DSH fork and not Creator Mode.
 
 ## Verdict
 

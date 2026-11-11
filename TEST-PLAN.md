@@ -1,6 +1,6 @@
 # Test plan
 
-Cola does not have to be the guinea pig. Run these against a local DSH checkout plus dshx.
+Cola does not have to be the guinea pig. Run these against a local DSH install.
 
 ## Static
 
@@ -18,28 +18,19 @@ npm run typecheck
 - spawn docs sending `reasoning_effort` / `thinking`
 - `cursor-team-kit`, `/deslop` as a required control skill
 
-## dshx check
+## Live check
 
-From a machine with [dshx](https://github.com/aa2246740/dsh-external-plugin-devkit) and a DSH checkout:
-
-```bash
-dshx setup --harness /path/to/deepseek-harness
-# link this repo as my-plugins/pstack-dsh if it is not already
-dshx check pstack-dsh --harness /path/to/deepseek-harness
-```
-
-Must pass: named `export function apply`, no `export default`, boot marker `[my-plugins/pstack-dsh] loaded` in source, portable `cordis.yml`, `dsh.client` + lazy-CJS `lib/client.js` (`window.__ModuleLoader__.load`).
-
-## verify-boot (isolated cold boot)
+Install the candidate into a web profile, start the Host, and read its state without sending a model request:
 
 ```bash
-dshx status          # if a live Host is already supervised, skip this section
-dshx verify-boot pstack-dsh --port 43123
+dsh plugin --profile web add <path or github:owner/pstack-dsh#tag>
+dsh web --no-open      # prints "[pstack-dsh] loaded", then the URL with its token
 ```
 
-Never `--force`. Never stop a Host this command did not start.
+From a page opened at that URL, POST `{ type: 'client-request', rpcId, method, payload: { args } }` to `/api/<method>`:
 
-This cloud checkout ran `dshx check` green. `dshx verify-boot pstack-dsh --port 43123` then skipped isolated cold boot: the linked official DSH tree had no installed CLI (`dump-config exited 1`, `id pstack-dsh missing from dump-config`). No Host was started or stopped. Re-run verify-boot on a machine where `dsh` dumps config.
+- `agentPresets/list` with `args: {}` lists `pstack-poteto` and `pstack-comment-sicko`, neither `broken`.
+- `skills/list` with `args: { request: { sessionId } }` lists every bundled skill under `node_modules/pstack-dsh/skills/`.
 
 ## Catalog / overlay (no network models required)
 
@@ -79,4 +70,4 @@ cd ~/dev/deepseek-harness && pnpm install --frozen-lockfile --filter @deepseek-a
 cd - && DSH_SOURCE=~/dev/deepseek-harness npm run build
 ```
 
-The build script is POSIX shell. dshx is not needed to build.
+The build script is POSIX shell.

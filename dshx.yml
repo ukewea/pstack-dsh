@@ -1,9 +1,0 @@
-id: pstack-dsh
-entry: src/index.ts
-marker: "[my-plugins/pstack-dsh] loaded"
-kind: function
-profile: web
-hotReload:
-  artifacts:
-    - src/index.ts
-    - lib/index.js

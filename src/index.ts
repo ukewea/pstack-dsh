@@ -11,7 +11,7 @@ import type {} from '@deepseek-ai/dsh-skill'
 import type { SubagentRuntime } from '@deepseek-ai/dsh-subagent'
 import { defineTool, type ToolRunContext } from '@deepseek-ai/dsh-tools'
 import { snapshotJsonValue, type JsonValue } from '@deepseek-ai/dsh-util-values'
-import { PLUGIN_ID, SPAWN_PROVIDER } from './ids.ts'
+import { BOOT_MARKER, PLUGIN_ID, SPAWN_PROVIDER } from './ids.ts'
 import { Config, type Config as PluginConfig } from './plugin-config.ts'
 import { COMMENT_SICKO_PRESET_ID, POTETO_PRESET_ID, rolePresetPlugins } from './presets.ts'
 import { createSkillProvider } from './skills-provider.ts'
@@ -59,7 +59,7 @@ function registerOne(ctx: Context, tool: ReturnType<typeof catalogTool>): void {
 }
 
 export function apply(ctx: Context, config?: PluginConfig): void {
-  console.log('[my-plugins/pstack-dsh] loaded')
+  console.log(BOOT_MARKER)
   const host = asHost(ctx, config)
   registerOne(ctx, catalogTool(host))
   registerOne(ctx, overlayReadTool(host))

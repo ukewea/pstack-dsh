@@ -13,8 +13,6 @@
     "agents",
     "presets",
     "cordis.patch.yml",
-    "cordis.yml",
-    "dshx.yml",
     "HARNESS.md",
     "README.md",
     "TEST-PLAN.md",
