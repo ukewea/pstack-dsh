@@ -7,12 +7,12 @@ import semver from 'semver'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 
-const HARNESS = '0.2.1-rc.5'
-const RANGE = '>=0.2.1-rc.1 <0.2.2'
-const ALPHAS = ['0.2.0-alpha.1', '0.2.1-alpha.1', '0.2.0-rc.2']
+const HARNESS = '0.2.2-rc.1'
+const RANGE = '>=0.2.2-rc.1 <0.2.3'
+const ALPHAS = ['0.2.2-alpha.3', '0.2.1-rc.5', '0.2.1-alpha.1', '0.2.0-rc.2']
 
-describe('DSH 0.2.1-rc.5 peers', () => {
-  it('accepts 0.2.1-rc.5 and rejects 0.2.1 alphas and the 0.2.0 series', async () => {
+describe('DSH 0.2.2-rc.1 peers', () => {
+  it('accepts 0.2.2-rc.1 and rejects 0.2.2 alphas and the 0.2.1 and 0.2.0 series', async () => {
     const manifest = JSON.parse(await readFile(join(ROOT, 'package.json'), 'utf8')) as {
       peerDependencies: Record<string, string>
       devDependencies: Record<string, string>

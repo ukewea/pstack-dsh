@@ -1,0 +1,5 @@
+# pnpm 11 reads its settings here, not from .npmrc. Keep the .npmrc choice:
+# DSH peers stay manual (they are listed again as devDependencies).
+packages:
+  - .
+autoInstallPeers: false
