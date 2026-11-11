@@ -22,6 +22,7 @@ const FORBIDDEN: { id: string; re: RegExp; allow?: string[] }[] = [
   { id: 'cursor-team-kit', re: /cursor-team-kit/ },
   { id: '/deslop', re: /\/deslop/ },
   { id: 'environment cloud', re: /environment:\s*"cloud"/ },
+  { id: '/visualize (Cursor chart tool)', re: /\/visualize\b/ },
 ]
 
 async function walkMd(dir: string): Promise<string[]> {
