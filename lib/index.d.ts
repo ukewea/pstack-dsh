@@ -31,6 +31,12 @@ declare const Config: {
 declare const name = "pstack-dsh";
 declare const inject: string[];
 declare function apply(ctx: Context, config?: Config): void;
+/**
+ * Register the role presets once the agentPresets service is up. In the live
+ * Host that service finishes starting after this plugin applies, so reading it
+ * during apply finds nothing; the inject scope also drops the presets with it.
+ */
+declare function watchRolePresets(ctx: Context): void;
 declare function registerRolePresets(ctx: Context): void;
 //#endregion
-export { Config, type Config as ConfigType, apply, inject, name, registerRolePresets };
+export { Config, type Config as ConfigType, apply, inject, name, registerRolePresets, watchRolePresets };

@@ -65,7 +65,7 @@ export function apply(ctx: Context, config?: PluginConfig): void {
   registerOne(ctx, overlayReadTool(host))
   registerOne(ctx, overlayWriteTool(host))
   registerOne(ctx, spawnTool(host))
-  registerRolePresets(ctx)
+  watchRolePresets(ctx)
   ctx.skills.registerProvider(control => createSkillProvider(ctx, control))
   ctx.inject(['webServer', 'connection'], webCtx => {
     registerPstackSettingsRoutes(webCtx, host)
@@ -77,6 +77,15 @@ function presetRegistry(ctx: Context): AgentPresetRegistry | undefined {
   const value: unknown = ctx.get('agentPresets')
   if (typeof value !== 'object' || value === null || !('register' in value) || typeof value.register !== 'function') return undefined
   return value as AgentPresetRegistry
+}
+
+/**
+ * Register the role presets once the agentPresets service is up. In the live
+ * Host that service finishes starting after this plugin applies, so reading it
+ * during apply finds nothing; the inject scope also drops the presets with it.
+ */
+export function watchRolePresets(ctx: Context): void {
+  ctx.inject(['agentPresets'], registerRolePresets)
 }
 
 export function registerRolePresets(ctx: Context): void {

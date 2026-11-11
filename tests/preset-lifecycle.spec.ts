@@ -3,7 +3,7 @@ import { describe, it } from 'node:test'
 import { Context } from '@deepseek-ai/cordis'
 import Loader from '@deepseek-ai/cordis-plugin-loader'
 import AgentPresetRegistry from '@deepseek-ai/dsh-agent-preset-registry'
-import { registerRolePresets } from '../src/index.ts'
+import { registerRolePresets, watchRolePresets } from '../src/index.ts'
 import { COMMENT_SICKO_PRESET_ID, POTETO_PRESET_ID } from '../src/presets.ts'
 import { mountCodingHostServices } from './coding-host.ts'
 import { mountAgentLoopTestDependencies } from './support/agent-loop-testkit/lib/index.js'
@@ -27,6 +27,27 @@ async function idsOf(ctx: Context): Promise<string[]> {
 }
 
 describe('agent preset registration lifecycle', () => {
+  it('registers both presets when the registry starts after the plugin applied', async () => {
+    // Live Host order: pstack applies before the agentPresets service is ready.
+    const ctx = new Context()
+    try {
+      await mountAgentLoopTestDependencies(ctx, { workingDirectory: true })
+      await mountCodingHostServices(ctx)
+      await ctx.plugin(Loader)
+      await ctx.plugin(watchRolePresets)
+      await ctx.plugin(AgentPresetRegistry, { default: POTETO_PRESET_ID })
+      const deadline = Date.now() + 5000
+      let ids = await idsOf(ctx)
+      while (ids.length < 2 && Date.now() < deadline) {
+        await new Promise(resolve => setTimeout(resolve, 25))
+        ids = await idsOf(ctx)
+      }
+      assert.deepEqual(ids, [COMMENT_SICKO_PRESET_ID, POTETO_PRESET_ID].sort())
+    } finally {
+      await ctx.fiber.dispose()
+    }
+  })
+
   it('removes both presets when the declaring plugin unloads and can register them again', async () => {
     const ctx = await openRegistry()
     try {
