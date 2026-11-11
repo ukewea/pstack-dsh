@@ -1,25 +1,24 @@
 import type { PstackRole } from '../roles.ts'
 
-// Upstream 0.15 recommendations are display copy, never runtime route defaults.
-const GROK = 'grok-4.6-fast-xhigh'
-const SOL = 'gpt-5.6-sol-max'
-const FABLE = 'claude-fable-5-1-thinking-max'
-const PANEL = `${FABLE}, ${SOL}, ${GROK}, claude-opus-5-thinking-xhigh`
+// Upstream 0.15.36 (setup-pstack step 5) recommendations are display copy, never runtime route defaults.
+const GROK = 'grok-4.7-xhigh-fast'
+const OPUS = 'claude-opus-5-5-xhigh'
+const PANEL = `${OPUS}, ${GROK}`
 
 export const POTETO_DEFAULT_SLUGS = {
   feature: GROK,
   refactoring: GROK,
-  'bug-fix': FABLE,
-  'perf-issue': FABLE,
-  hillclimb: FABLE,
-  'judgment-and-prose': FABLE,
-  'hardest-tasks': FABLE,
+  'bug-fix': GROK,
+  'perf-issue': GROK,
+  hillclimb: GROK,
+  'judgment-and-prose': OPUS,
+  'hardest-tasks': OPUS,
   'how-explorer': GROK,
-  'how-explainer': FABLE,
+  'how-explainer': OPUS,
   'why-investigators': GROK,
-  'why-synthesizer': FABLE,
-  'reflect-tooling': SOL,
-  'reflect-judgment': FABLE,
+  'why-synthesizer': OPUS,
+  'reflect-tooling': GROK,
+  'reflect-judgment': OPUS,
   'swarm-workers': GROK,
   'independent-verifier': '',
   'poteto-agent': '',

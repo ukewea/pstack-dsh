@@ -4,10 +4,10 @@ import { en, zh } from '../src/client/locales.ts'
 import { POTETO_DEFAULT_SLUGS, potetoNoteCopy } from '../src/client/poteto-defaults.ts'
 import { ALL_ROLES, type PstackRole } from '../src/roles.ts'
 
-const GROK = 'grok-4.6-fast-xhigh'
-const SOL = 'gpt-5.6-sol-max'
-const FABLE = 'claude-fable-5-1-thinking-max'
-const PANEL = 'claude-fable-5-1-thinking-max, gpt-5.6-sol-max, grok-4.6-fast-xhigh, claude-opus-5-thinking-xhigh'
+// pstack 0.15.36 (de8ee15) skills/setup-pstack/SKILL.md step 5.
+const GROK = 'grok-4.7-xhigh-fast'
+const OPUS = 'claude-opus-5-5-xhigh'
+const PANEL = 'claude-opus-5-5-xhigh, grok-4.7-xhigh-fast'
 
 const EXPECTED: Record<PstackRole, string> = {
   feature: GROK,
@@ -15,15 +15,15 @@ const EXPECTED: Record<PstackRole, string> = {
   'how-explorer': GROK,
   'why-investigators': GROK,
   'swarm-workers': GROK,
-  'bug-fix': FABLE,
-  'perf-issue': FABLE,
-  hillclimb: FABLE,
-  'reflect-tooling': SOL,
-  'judgment-and-prose': FABLE,
-  'hardest-tasks': FABLE,
-  'how-explainer': FABLE,
-  'why-synthesizer': FABLE,
-  'reflect-judgment': FABLE,
+  'bug-fix': GROK,
+  'perf-issue': GROK,
+  hillclimb: GROK,
+  'reflect-tooling': GROK,
+  'judgment-and-prose': OPUS,
+  'hardest-tasks': OPUS,
+  'how-explainer': OPUS,
+  'why-synthesizer': OPUS,
+  'reflect-judgment': OPUS,
   'how-critics': '',
   'arena-runners': PANEL,
   'arena-cross-judge-pool': PANEL,
@@ -49,7 +49,8 @@ describe('Poteto Settings notes', () => {
     assert.ok(!('panelHint' in en))
     assert.equal(potetoNoteCopy('feature', en.potetoPrefix), `Poteto 0.15 recommendation: ${GROK}`)
     assert.equal(potetoNoteCopy('feature', zh.potetoPrefix), `Poteto 0.15 推荐：${GROK}`)
-    assert.equal(potetoNoteCopy('bug-fix', en.potetoPrefix), `Poteto 0.15 recommendation: ${FABLE}`)
+    assert.equal(potetoNoteCopy('bug-fix', en.potetoPrefix), `Poteto 0.15 recommendation: ${GROK}`)
+    assert.equal(potetoNoteCopy('hardest-tasks', en.potetoPrefix), `Poteto 0.15 recommendation: ${OPUS}`)
     assert.equal(potetoNoteCopy('arena-runners', zh.potetoPrefix), `Poteto 0.15 推荐：${PANEL}`)
     assert.equal(potetoNoteCopy('how-critics', en.potetoPrefix), '')
     assert.equal(potetoNoteCopy('how-critics', zh.potetoPrefix), '')
