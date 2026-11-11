@@ -29,7 +29,7 @@ describe('upstream 0.15 DSH skill availability', () => {
     const provider = openBundledSkills(root)
     try {
       const names = (await readdir(root)).filter(name => name.startsWith('principle-'))
-      assert.equal(names.length, 23)
+      assert.equal(names.length, 24)
       for (const name of [...names, 'how', 'why', 'unslop', 'typescript-best-practices']) {
         const skill = await provider.get(name)
         assert.equal(skill?.invocation.modelInvocable, true, name)
