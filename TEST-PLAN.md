@@ -67,4 +67,16 @@ After the bundle has been activated on the intended Host (initial bundle install
 
 `node tests/settings-refresh.browser.mjs [candidate/lib/client.js]` checks these UI behaviors on the existing `127.0.0.1:43127` Host using the globally pinned Playwright runtime. Snapshot responses and Host notifications are simulated only in that test page; no login, saved overlay or server process is changed. Supplying a candidate bundle tests it before live publication.
 
-Client builds use dshx `externalClientBundle`; configure matching `DSHX_HARNESS` / `~/.config/dshx/harness` paths before `npm run check`.
+## Build
+
+`lib/` is committed, so installing pstack never builds it. Rebuild `lib/` after changing `src/`, and commit it with the source change.
+
+The build uses the official DSH client preset `packages/client/tsdown.client.ts` and the `tsdown` installed with it. That preset is not published to npm, so it comes from a deepseek-harness git checkout at the tag this package targets (the preset stamps the checkout's commit, so a source tarball does not work):
+
+```sh
+git clone --depth 1 --branch dsh-v0.2.2-rc.1 https://github.com/deepseek-ai/deepseek-harness.git ~/dev/deepseek-harness
+cd ~/dev/deepseek-harness && pnpm install --frozen-lockfile --filter @deepseek-ai/dsh-root --ignore-scripts
+cd - && DSH_SOURCE=~/dev/deepseek-harness npm run build
+```
+
+The build script is POSIX shell. dshx is not needed to build.

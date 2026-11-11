@@ -30,7 +30,7 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "build": "tsdown && node scripts/wrap-client.mjs",
+    "build": "\"$DSH_SOURCE/node_modules/.bin/tsdown\" --config-loader native",
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.client.json --noEmit",
     "test": "node --experimental-strip-types --test tests/*.spec.ts",
     "check": "npm run typecheck && npm run test && npm run build"
@@ -135,7 +135,6 @@
     "@types/react": "~18.3.1",
     "react": "^18.2.0",
     "semver": "^7.7.2",
-    "tsdown": "^0.22.2",
     "typescript": "^6.0.3"
   }
 }

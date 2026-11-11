@@ -1,27 +1,14 @@
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { defineConfig } from 'tsdown'
 
-const root = process.env.DSHX_HARNESS?.trim()
-if (!root) throw new Error('Set DSHX_HARNESS to the checkout used for this build.')
-const adapter = resolve(root, 'tools/dshx/src/client-build.js')
-if (!existsSync(adapter)) throw new Error(`dshx client build adapter not found: ${adapter}`)
-const { externalClientBundle } = await import(pathToFileURL(adapter).href)
-const [, client] = externalClientBundle('pstack-dsh', ['src/index.ts'], { clientEntry: 'src/client/index.tsx' })
+// Official DSH client build preset. It is not published to npm, so the build
+// reads it from a deepseek-harness checkout at the tag this package targets.
+const source = process.env.DSH_SOURCE?.trim()
+if (!source) throw new Error('Set DSH_SOURCE to a deepseek-harness checkout; see TEST-PLAN.md "Build".')
+const preset = resolve(source, 'packages/client/tsdown.client.ts')
+if (!existsSync(preset)) throw new Error(`DSH client build preset not found: ${preset}`)
+const { clientBundle } = await import(pathToFileURL(preset).href)
 
-export default defineConfig([
-  {
-    entry: { index: 'src/index.ts' },
-    platform: 'node',
-    format: 'esm',
-    outExtensions: () => ({ js: '.js', dts: '.d.ts' }),
-    dts: true,
-    outDir: 'lib',
-    clean: true,
-    deps: {
-      neverBundle: [/^@deepseek-ai\//],
-    },
-  },
-  client,
-])
+// Node half from src/index.ts (with lib/index.d.ts); browser half from src/client/index.ts.
+export default clientBundle(import.meta.dirname, ['src/index.ts'], { lib: { dts: true } })
