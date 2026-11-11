@@ -1,5 +1,7 @@
 # pstack 0.15 text port
 
+> Superseded for invocation (2026-11-12): the DSH port now follows upstream pstack 0.15.36 (`de8ee15`). Only `setup-pstack` is model-invocable; every other skill keeps `disable-model-invocation: true`, and poteto-mode reads bundled skills by path (`../<name>/SKILL.md` from its base directory). The "Model invocation for all `principle-*` skills" line and the "Cursor-only invocation restrictions" exclusion below describe the earlier 0.15.0 port.
+
 ## Provenance
 
 This DSH candidate ports Markdown changes from upstream `cursor/plugins`, `pstack/`, at `71ed0d1076fec562c1b74ee353121a8d00f75382`, version 0.15.0.
