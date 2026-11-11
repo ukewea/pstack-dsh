@@ -38,9 +38,9 @@ Targets official DeepSeek Harness **0.2.2-rc.1** (tag `dsh-v0.2.2-rc.1`, npm `@d
 
 ## 来源 / Credits
 
-23 个玩法（playbooks）和 23 条原则（principles）是 [poteto](https://x.com/poteto) 写的，出自 [official pstack](https://github.com/cursor/plugins/tree/main/pstack)。本仓库是 DeepSeek Harness 移植（[aa2246740/pstack-dsh](https://github.com/aa2246740/pstack-dsh)）。调用层用 [HARNESS.md](./HARNESS.md) 里的 DSH 工具名。玩法和原则不是本仓库写的。
+23 个玩法（playbooks）和 24 条原则（principles）是 [poteto](https://x.com/poteto) 写的，出自 [official pstack](https://github.com/cursor/plugins/tree/main/pstack)。本仓库是 DeepSeek Harness 移植（[aa2246740/pstack-dsh](https://github.com/aa2246740/pstack-dsh)）。调用层用 [HARNESS.md](./HARNESS.md) 里的 DSH 工具名。玩法和原则不是本仓库写的。
 
-The 23 playbooks and 23 principles are [poteto](https://x.com/poteto)'s, from [official pstack](https://github.com/cursor/plugins/tree/main/pstack). This repository is the DeepSeek Harness port ([aa2246740/pstack-dsh](https://github.com/aa2246740/pstack-dsh)). Harness calls use DSH tools named in [HARNESS.md](./HARNESS.md). This port did not author those playbooks or principles.
+The 23 playbooks and 24 principles are [poteto](https://x.com/poteto)'s, from [official pstack](https://github.com/cursor/plugins/tree/main/pstack). This repository is the DeepSeek Harness port ([aa2246740/pstack-dsh](https://github.com/aa2246740/pstack-dsh)). Harness calls use DSH tools named in [HARNESS.md](./HARNESS.md). This port did not author those playbooks or principles.
 
 ## 本地目录 / Local checkout
 

@@ -1,6 +1,6 @@
 # DSH harness map
 
-This port carries pstack 0.15's 23 playbooks and 23 principles, with DSH call sites and model-invocable principles. See [UPGRADE-0.15.md](./UPGRADE-0.15.md) for the pinned upstream source and excluded runtime changes.
+This port carries pstack 0.15's 23 playbooks and 24 principles, with DSH call sites and model-invocable principles. See [UPGRADE-0.15.md](./UPGRADE-0.15.md) for the pinned upstream source and excluded runtime changes.
 
 Sources: official pstack (`cursor/plugins` `pstack/`) and official DeepSeek Harness (`deepseek-ai/deepseek-harness`). Tool names and fields below are from DSH source, not from Cursor `Task` and not from grok-build `task`.
 
