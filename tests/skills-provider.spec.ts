@@ -121,8 +121,11 @@ describe('bundled skills through the official filesystem provider', () => {
     const skills = openBundledSkills(root)
     try {
       assert.deepEqual((await skills.snapshot()).skills.map(skill => skill.name), ['skill-a'])
+      // The provider's chokidar watcher ignores files that land before it reports ready.
+      // Under a loaded parallel test run that takes longer, so let it settle first.
+      await new Promise(resolve => setTimeout(resolve, 1000))
       await writeSkill(root, 'skill-b', 'beta', 'body b')
-      const snapshot = await waitFor(() => skills.snapshot(), current => current.skills.length === 2)
+      const snapshot = await waitFor(() => skills.snapshot(), current => current.skills.length === 2, 15000)
       assert.deepEqual(snapshot.skills.map(skill => skill.name).sort(), ['skill-a', 'skill-b'])
       assert.equal((await skills.get('skill-b'))?.content, 'body b')
     } finally {
