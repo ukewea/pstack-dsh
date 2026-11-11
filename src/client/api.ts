@@ -10,19 +10,30 @@ export interface SettingsSnapshot {
   droppedRoles: string[]
 }
 
-type CatalogEvent = 'llm/adapters-updated' | 'settings/document-updated' | 'credentials/reference-updated'
+type CatalogEvent =
+  | 'llm/adapters-updated'
+  | 'llm/models-updated'
+  | 'settings/document-updated'
+  | 'credentials/reference-updated'
+  | 'credentials/record-updated'
 
 export interface CatalogEventContext {
   remote: { $on(event: CatalogEvent, listener: () => void): () => void }
   on(event: 'connection/reset', listener: () => void): () => void
 }
 
-/** Use the same Host notifications as DSH's model directory, scoped to the open settings page. */
+/**
+ * Use the same Host notifications as DSH's model selector, scoped to the open settings page.
+ * `llm/models-updated` and `credentials/record-updated` exist from DSH 0.2.2; on an older Host
+ * they never fire, so subscribing is harmless.
+ */
 export function listenForCatalogChanges(ctx: CatalogEventContext, listener: () => void): () => void {
   const disposers = [
     ctx.remote.$on('llm/adapters-updated', listener),
+    ctx.remote.$on('llm/models-updated', listener),
     ctx.remote.$on('settings/document-updated', listener),
     ctx.remote.$on('credentials/reference-updated', listener),
+    ctx.remote.$on('credentials/record-updated', listener),
     ctx.on('connection/reset', listener),
   ]
   return () => { for (const dispose of disposers) dispose() }

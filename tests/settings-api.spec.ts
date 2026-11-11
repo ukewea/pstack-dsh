@@ -162,7 +162,7 @@ describe('settings snapshot/save', () => {
 })
 
 describe('client catalog notifications', () => {
-  it('refreshes on Host login, settings, credential and reconnect events, then unsubscribes', () => {
+  it('refreshes on Host login, model, settings, credential and reconnect events, then unsubscribes', () => {
     const listeners = new Map<string, () => void>()
     const subscribe = (event: string, listener: () => void) => {
       listeners.set(event, listener)
@@ -171,12 +171,20 @@ describe('client catalog notifications', () => {
     const ctx: CatalogEventContext = { remote: { $on: subscribe }, on: subscribe }
     let refreshes = 0
     const stop = listenForCatalogChanges(ctx, () => { refreshes += 1 })
-    for (const event of ['llm/adapters-updated', 'settings/document-updated', 'credentials/reference-updated', 'connection/reset']) {
+    const events = [
+      'llm/adapters-updated',
+      'llm/models-updated',
+      'settings/document-updated',
+      'credentials/reference-updated',
+      'credentials/record-updated',
+      'connection/reset',
+    ]
+    for (const event of events) {
       const listener = listeners.get(event)
       assert.ok(listener, `${event} must reach the role selector`)
       listener()
     }
-    assert.equal(refreshes, 4)
+    assert.equal(refreshes, events.length)
     stop()
     assert.equal(listeners.size, 0)
   })
