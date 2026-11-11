@@ -32,8 +32,8 @@ describe('bundle composition', () => {
     assert.match(patch, /name:\s*pstack-dsh/)
     assert.match(readme, /设置 → 插件 → 添加插件/)
     const tag = `v${pkg.version}`.replace(/\./g, '\\.')
-    assert.match(readme, new RegExp(`github:aa2246740/pstack-dsh#${tag}`))
-    assert.match(readme, new RegExp(`dsh plugin --profile web add github:aa2246740/pstack-dsh#${tag}`))
+    assert.match(readme, new RegExp(`github:ukewea/pstack-dsh#${tag}`))
+    assert.match(readme, new RegExp(`dsh plugin --profile web add github:ukewea/pstack-dsh#${tag}`))
     assert.doesNotMatch(readme, /\bdshx\b|\bmy-plugins\b/i)
   })
 

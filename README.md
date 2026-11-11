@@ -9,7 +9,7 @@
 Open **Settings → Plugins → Add plugin** and enter this in “Package name or address”:
 
 ```text
-github:aa2246740/pstack-dsh#v0.2.5
+github:ukewea/pstack-dsh#v0.3.0
 ```
 
 桌面端插件管理器负责 Desktop profile 和内置包管理器。本发布已包含编译好的 `lib/`；普通使用不需要 clone 或本地构建。若应用提示刷新或重新打开，请按提示完成。
@@ -19,7 +19,7 @@ The desktop plugin manager owns the Desktop profile and bundled package manager.
 ### Web CLI
 
 ```sh
-dsh plugin --profile web add github:aa2246740/pstack-dsh#v0.2.5
+dsh plugin --profile web add github:ukewea/pstack-dsh#v0.3.0
 ```
 
 这条官方 CLI 命令只写入 `web` profile，不能修改 Desktop App 的 profile。对于已运行的 Web Host，请重新打开该 Host 一次，再刷新网页。
@@ -38,9 +38,9 @@ Targets official DeepSeek Harness **0.2.2-rc.1** (tag `dsh-v0.2.2-rc.1`, npm `@d
 
 ## 来源 / Credits
 
-23 个玩法（playbooks）和 24 条原则（principles）是 [poteto](https://x.com/poteto) 写的，出自 [official pstack](https://github.com/cursor/plugins/tree/main/pstack)。本仓库是 DeepSeek Harness 移植（[aa2246740/pstack-dsh](https://github.com/aa2246740/pstack-dsh)）。调用层用 [HARNESS.md](./HARNESS.md) 里的 DSH 工具名。玩法和原则不是本仓库写的。
+23 个玩法（playbooks）和 24 条原则（principles）是 [poteto](https://x.com/poteto) 写的，出自 [official pstack](https://github.com/cursor/plugins/tree/main/pstack)。本仓库是 DeepSeek Harness 移植：最初由 [aa2246740/pstack-dsh](https://github.com/aa2246740/pstack-dsh) 完成，现由 [ukewea/pstack-dsh](https://github.com/ukewea/pstack-dsh) 继续维护。调用层用 [HARNESS.md](./HARNESS.md) 里的 DSH 工具名。玩法和原则不是本仓库写的。
 
-The 23 playbooks and 24 principles are [poteto](https://x.com/poteto)'s, from [official pstack](https://github.com/cursor/plugins/tree/main/pstack). This repository is the DeepSeek Harness port ([aa2246740/pstack-dsh](https://github.com/aa2246740/pstack-dsh)). Harness calls use DSH tools named in [HARNESS.md](./HARNESS.md). This port did not author those playbooks or principles.
+The 23 playbooks and 24 principles are [poteto](https://x.com/poteto)'s, from [official pstack](https://github.com/cursor/plugins/tree/main/pstack). This repository is the DeepSeek Harness port, first made by [aa2246740/pstack-dsh](https://github.com/aa2246740/pstack-dsh) and now maintained at [ukewea/pstack-dsh](https://github.com/ukewea/pstack-dsh). Harness calls use DSH tools named in [HARNESS.md](./HARNESS.md). This port did not author those playbooks or principles.
 
 ## 本地目录 / Local checkout
 
@@ -49,7 +49,7 @@ The 23 playbooks and 24 principles are [poteto](https://x.com/poteto)'s, from [o
 A local checkout (development/local testing):
 
 ```sh
-git clone https://github.com/aa2246740/pstack-dsh.git
+git clone https://github.com/ukewea/pstack-dsh.git
 dsh plugin --profile web add ./pstack-dsh
 ```
 
@@ -243,9 +243,11 @@ Twenty-four short skills, one principle each. `poteto-mode` indexes them inline 
 
 </details>
 
-## 上游 0.15 同步
+## 上游 0.15 同步 / Upstream sync
 
-技能内容同步至 `cursor/plugins` 的 pstack 0.15.0，提交 `71ed0d1076fec562c1b74ee353121a8d00f75382`。保留 DSH 工具和角色路由。
+技能内容同步至 `cursor/plugins` 的 pstack 0.15.36，提交 `de8ee15dd1194627d21eb5fcd41cb1873208dabb`。保留 DSH 工具和角色路由。未包含 Cursor 专用的 make-bot-ui、poteto-help 和 automations，也未包含 ketchup-video（DSH 没有视频渲染，网页对话不能播放 mp4）。
+
+Skill content is synced to pstack 0.15.36 from `cursor/plugins` (commit `de8ee15dd1194627d21eb5fcd41cb1873208dabb`), keeping DSH tools and role routing. Not included: Cursor-only make-bot-ui, poteto-help and automations, and ketchup-video (DSH has no video renderer and its web chat cannot play mp4).
 
 设置页的「Poteto 0.15 推荐」仅供参考，不会替换用户已保存的模型或 effort。`how-critics` 不再显示或启动代理，旧配置仍可读写并保留。不包含 Cursor 专用的 make-bot-ui。
 
@@ -317,6 +319,6 @@ Do not `--force` or kill a user's live DSH Host. See [TEST-PLAN.md](./TEST-PLAN.
 
 ## 许可 / License
 
-MIT。玩法与原则：Lauren Tan。DSH 移植打包：aa2246740。见 [LICENSE](./LICENSE)。
+MIT。玩法与原则：Lauren Tan。DSH 移植打包：aa2246740。Fork 维护：ukewea。见 [LICENSE](./LICENSE)。
 
-MIT. Playbooks and principles: Lauren Tan. DSH port packaging: aa2246740. See [LICENSE](./LICENSE).
+MIT. Playbooks and principles: Lauren Tan. DSH port packaging: aa2246740. Fork maintenance: ukewea. See [LICENSE](./LICENSE).

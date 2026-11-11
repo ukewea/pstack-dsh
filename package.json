@@ -1,7 +1,7 @@
 {
   "name": "pstack-dsh",
   "description": "DeepSeek Harness port of official pstack. Playbooks and principles are poteto's; only the harness call layer is rewritten.",
-  "version": "0.2.5",
+  "version": "0.3.0",
   "license": "MIT",
   "type": "module",
   "main": "lib/index.js",
@@ -41,9 +41,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/aa2246740/pstack-dsh.git"
+    "url": "git+https://github.com/ukewea/pstack-dsh.git"
   },
-  "homepage": "https://github.com/aa2246740/pstack-dsh",
+  "homepage": "https://github.com/ukewea/pstack-dsh",
+  "pstack": {
+    "upstream": "cursor/plugins pstack/",
+    "upstreamVersion": "0.15.36",
+    "upstreamCommit": "de8ee15dd1194627d21eb5fcd41cb1873208dabb"
+  },
   "keywords": [
     "deepseek-harness",
     "dsh",
