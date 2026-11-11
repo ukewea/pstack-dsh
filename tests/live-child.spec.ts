@@ -21,6 +21,7 @@ import * as sessionPersistenceJsonl from '@deepseek-ai/dsh-session-persistence-j
 import SqliteSessionQuery from '@deepseek-ai/dsh-session-query-sqlite'
 import type {} from '@deepseek-ai/dsh-working-directory'
 import { registerRolePresets } from '../src/index.ts'
+import { defaultSkillsRoot } from '../src/skills-provider.ts'
 import { developmentPlugins } from '../src/presets.ts'
 import { spawnTool } from '../src/tools.ts'
 import { mountCodingHostServices } from './coding-host.ts'
@@ -280,6 +281,19 @@ describe('real child agent on the in-process runtime', () => {
         signal,
         calls: [{ type: 'tool-call', id: ToolCallId('sicko-read'), name: 'read', arguments: JSON.stringify({ file_path: source }) }],
       })
+      // poteto-mode reads leaf skills by path (../<name>/SKILL.md from its base directory),
+      // so a session whose cwd is elsewhere must read the installed skills root without approval.
+      const leafSkill = join(defaultSkillsRoot(), 'tdd', 'SKILL.md')
+      for (const [label, agent] of [['parent', parent], ['comment-sicko', sicko.child]] as const) {
+        const leaf = await live.ctx.tools.execute({
+          agent,
+          signal,
+          calls: [{ type: 'tool-call', id: ToolCallId(`${label}-leaf`), name: 'read', arguments: JSON.stringify({ file_path: leafSkill }) }],
+        })
+        const leafResult = leaf.results[0]?.result
+        if (leafResult?.isError !== false) throw new Error(`${label} could not read ${leafSkill}: ${JSON.stringify(leafResult)}`)
+        assert.match(JSON.stringify(leafResult), /name: tdd/, label)
+      }
       const deniedResult = denied.results[0]?.result
       if (deniedResult?.isError !== true) throw new Error(`comment-sicko write was allowed: ${JSON.stringify(deniedResult)}`)
       assert.match(deniedResult.error.message, /denies write/)
