@@ -1,5 +1,18 @@
-# pnpm 11 reads its settings here, not from .npmrc. Keep the .npmrc choice:
-# DSH peers stay manual (they are listed again as devDependencies).
+# pnpm 11 reads its settings here, not from .npmrc.
 packages:
   - .
-autoInstallPeers: false
+# DSH packages depend on each other through peers, and npm installs those
+# peers; do the same so the dev tree matches a real DSH install.
+autoInstallPeers: true
+# Tests boot real DSH services (agent loop, subagent runtime, session stores).
+# The dsh devDependency brings the same tree a DSH install has; hoisting its
+# @deepseek-ai packages lets tests import them by name.
+publicHoistPattern:
+  - '@deepseek-ai/*'
+# Same install-script policy as deepseek-harness's own pnpm-workspace.yaml.
+allowBuilds:
+  node-pty: true
+  koffi: true
+  '@deepseek-ai/dsh-subprocess-local': true
+  '@google/genai': false
+  protobufjs: false
