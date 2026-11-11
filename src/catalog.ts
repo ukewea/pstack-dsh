@@ -24,7 +24,14 @@ const API_KEY_REF = /^[A-Za-z_][A-Za-z0-9_]*$/
 
 interface CatalogLlm {
   listProviders(): readonly { id: string; name: string }[]
-  listConfigurableProviders?(): readonly { provider: string; displayName: string; settingsNs: string; settingsPath: readonly string[] }[]
+  listConfigurableProviders?(): readonly {
+    provider: string
+    displayName: string
+    settingsNs: string
+    settingsPath: readonly string[]
+    /** Env names the adapter reads credentials from on its own (llm-pi-ai vendors). */
+    nativeAuth?: { env?: readonly string[] }
+  }[]
   listModels(provider: string): Promise<readonly { id: string; name: string }[]>
   resolveModelInfo(provider: string, model: string, signal?: AbortSignal): Promise<{
     id: string
@@ -193,8 +200,11 @@ export async function buildCatalog(host: CatalogHost, signal?: AbortSignal): Pro
       for (const row of configurable) {
         if (ns !== undefined && row.settingsNs !== ns) continue
         const slice = row.settingsPath.length === 0 ? value : sliceAtPath(value, row.settingsPath)
+        // An undeclared provider has no slice. Falling back to the whole namespace would
+        // lend it every other provider's key refs.
+        if (slice === undefined) continue
         const refs = new Set<string>()
-        collectApiKeyEnvRefs(slice ?? value, refs)
+        collectApiKeyEnvRefs(slice, refs)
         for (const ref of refs) remember(row.provider, ref)
       }
     }
@@ -202,6 +212,12 @@ export async function buildCatalog(host: CatalogHost, signal?: AbortSignal): Pro
 
   for (const provider of providers) {
     if (provider.id === DEEPSEEK_PROVIDER) remember(provider.id, DEEPSEEK_API_KEY_ENV)
+  }
+  // A vendor adapter that reads its key from the environment still needs that key.
+  for (const row of llm?.listConfigurableProviders?.() ?? []) {
+    for (const ref of row.nativeAuth?.env ?? []) {
+      if (API_KEY_REF.test(ref)) remember(row.provider, ref)
+    }
   }
 
   const routes: LiveRoute[] = []
@@ -238,10 +254,16 @@ export async function buildCatalog(host: CatalogHost, signal?: AbortSignal): Pro
       // Cursor passthrough authenticates through the local Cursor CLI. A
       // registered provider with live models therefore needs no DSH credential.
       const localPassthrough = provider.id === 'cursor'
-      const selectable = oauthSignedIn || keyPresent || localPassthrough
+      // Plugins such as dsh-llm-grok and dsh-codex hold their own login: no apiKeyEnv and
+      // no dsh-oauth-login store. Like the DSH model picker, trust their live model list.
+      // local-* routes hand the turn to an outside CLI agent, where pstack's role presets
+      // and write guard cannot apply, so roles never map to them.
+      const pluginLogin = storeId === undefined && refs.length === 0 && !localPassthrough
+        && !provider.id.startsWith('local-')
+      const selectable = oauthSignedIn || keyPresent || localPassthrough || pluginLogin
       const source: LiveRoute['source'] = oauthSignedIn
         ? 'oauth'
-        : localPassthrough ? 'local' : 'api-key'
+        : localPassthrough ? 'local' : keyPresent ? 'api-key' : 'plugin'
       if (!selectable) continue
 
       for (const model of models) {

@@ -85,17 +85,91 @@ describe('buildCatalog', () => {
     assert.deepEqual(catalog.routes[0]?.efforts.map(effort => effort.id), ['high'])
   })
 
-  it('does not list unsigned-in vendor ids from a missing oauth store', async () => {
+  it('does not list an oauth vendor route whose login is missing', async () => {
     const home = await mkdtemp(join(tmpdir(), 'pstack-dsh-novendor-'))
     const catalog = await buildCatalog({
       dshHome: home,
       env: {},
       llm: llmStub({
-        providers: [{ id: 'openai', name: 'OpenAI' }],
-        models: { openai: [{ id: 'gpt-4', name: 'GPT-4' }] },
+        providers: [{ id: 'pi-openai-codex', name: 'OpenAI Codex (oauth)' }],
+        models: { 'pi-openai-codex': [{ id: 'gpt-6.1-sol', name: 'GPT 6.1 Sol' }] },
       }),
     })
-    assert.equal(catalog.routes.some(route => route.provider === 'openai'), false)
+    assert.equal(catalog.routes.length, 0)
+  })
+
+  it('lists a plugin-login provider with live models, as the DSH model picker does', async () => {
+    // dsh-llm-grok and dsh-codex log in on their own: no apiKeyEnv, no dsh-oauth-login store.
+    const home = await mkdtemp(join(tmpdir(), 'pstack-dsh-plugin-'))
+    const catalog = await buildCatalog({
+      dshHome: home,
+      env: {},
+      llm: {
+        ...llmStub({
+          providers: [{ id: 'grok', name: 'Grok' }, { id: 'openai-codex', name: 'OpenAI Codex' }],
+          models: {
+            grok: [{ id: 'grok-4.7', name: 'Grok 4.7' }],
+            'openai-codex': [{ id: 'gpt-6.1-sol', name: 'GPT 6.1 Sol' }],
+          },
+        }),
+        listConfigurableProviders: () => [
+          { provider: 'grok', displayName: 'Grok', settingsNs: 'llm-grok', settingsPath: [] },
+          { provider: 'openai-codex', displayName: 'openai-codex', settingsNs: 'llm-pi-ai', settingsPath: ['providers', 'openai-codex'] },
+        ],
+      },
+      settings: {
+        // A declared pi-ai provider elsewhere must not lend its key ref to the undeclared openai-codex row.
+        describe: () => [{ ns: 'llm-pi-ai', value: { providers: { anthropic: { apiKeyEnv: 'ANTHROPIC_API_KEY' } } } }],
+      },
+      credentials: {
+        async describe() {
+          return { configured: false }
+        },
+      },
+    })
+    assert.deepEqual(catalog.routes.map(route => `${route.provider}/${route.model}/${route.source}`).sort(), [
+      'grok/grok-4.7/plugin',
+      'openai-codex/gpt-6.1-sol/plugin',
+    ])
+    assert.equal(catalog.selectableCount, 2)
+  })
+
+  it('lists a vendor adapter whose own env key is set', async () => {
+    const home = await mkdtemp(join(tmpdir(), 'pstack-dsh-envkey-'))
+    const catalog = await buildCatalog({
+      dshHome: home,
+      env: { ANTHROPIC_API_KEY: 'sk-test' },
+      llm: {
+        ...llmStub({
+          providers: [{ id: 'anthropic', name: 'anthropic' }],
+          models: { anthropic: [{ id: 'claude-x', name: 'Claude X' }] },
+        }),
+        listConfigurableProviders: () => [{
+          provider: 'anthropic',
+          displayName: 'anthropic',
+          settingsNs: 'llm-pi-ai',
+          settingsPath: ['providers', 'anthropic'],
+          nativeAuth: { env: ['ANTHROPIC_API_KEY'] },
+        }],
+      },
+    })
+    assert.deepEqual(catalog.routes.map(route => `${route.provider}/${route.source}`), ['anthropic/api-key'])
+  })
+
+  it('does not list local CLI agents, which run outside pstack presets', async () => {
+    const home = await mkdtemp(join(tmpdir(), 'pstack-dsh-localcli-'))
+    const catalog = await buildCatalog({
+      dshHome: home,
+      env: {},
+      llm: llmStub({
+        providers: [{ id: 'local-claude-code', name: 'Claude Code' }, { id: 'local-codex-cli', name: 'Codex CLI' }],
+        models: {
+          'local-claude-code': [{ id: 'default', name: 'Default' }],
+          'local-codex-cli': [{ id: 'default', name: 'Default' }],
+        },
+      }),
+    })
+    assert.equal(catalog.routes.length, 0)
   })
 
   it('lists the live local Cursor passthrough route without a DSH credential record', async () => {
@@ -173,20 +247,30 @@ describe('buildCatalog', () => {
     const catalog = await buildCatalog({
       dshHome: home,
       env: {},
-      llm: llmStub({
-        providers: [
-          { id: 'pi-zai-coding-cn', name: 'GLM' },
-          { id: 'pi-future-provider', name: 'Future provider' },
-          { id: 'pi-signed-out', name: 'Signed out' },
-          { id: 'zai-coding-cn', name: 'Unrelated adapter' },
-        ],
-        models: {
-          'pi-zai-coding-cn': [{ id: 'glm-5.3-flash', name: 'GLM' }],
-          'pi-future-provider': [{ id: 'live-model', name: 'Live model' }],
-          'pi-signed-out': [{ id: 'not-selectable', name: 'Not selectable' }],
-          'zai-coding-cn': [{ id: 'not-selectable', name: 'Not selectable' }],
-        },
-      }),
+      llm: {
+        ...llmStub({
+          providers: [
+            { id: 'pi-zai-coding-cn', name: 'GLM' },
+            { id: 'pi-future-provider', name: 'Future provider' },
+            { id: 'pi-signed-out', name: 'Signed out' },
+            { id: 'zai-coding-cn', name: 'Unrelated adapter' },
+          ],
+          models: {
+            'pi-zai-coding-cn': [{ id: 'glm-5.3-flash', name: 'GLM' }],
+            'pi-future-provider': [{ id: 'live-model', name: 'Live model' }],
+            'pi-signed-out': [{ id: 'not-selectable', name: 'Not selectable' }],
+            'zai-coding-cn': [{ id: 'not-selectable', name: 'Not selectable' }],
+          },
+        }),
+        // The unrelated adapter is an llm-pi-ai vendor that reads its own key from the environment.
+        listConfigurableProviders: () => [{
+          provider: 'zai-coding-cn',
+          displayName: 'zai-coding-cn',
+          settingsNs: 'llm-pi-ai',
+          settingsPath: ['providers', 'zai-coding-cn'],
+          nativeAuth: { env: ['ZAI_CODING_CN_API_KEY'] },
+        }],
+      },
     })
     assert.deepEqual(catalog.routes.filter(route => route.selectable).map(route => route.provider), [
       'pi-zai-coding-cn', 'pi-future-provider',
