@@ -88,7 +88,13 @@ describe('bundled skills through the official filesystem provider', () => {
       assert.equal(mode?.invocation.modelInvocable, false)
       assert.equal(mode?.invocation.userInvocable, true)
       assert.match(mode?.content ?? '', /pstack_spawn/)
-      assert.equal((await skills.get('how'))?.invocation.modelInvocable, true)
+      const how = await skills.get('how')
+      assert.equal(how?.invocation.modelInvocable, false)
+      assert.equal(how?.invocation.userInvocable, true)
+      assert.match(how?.content ?? '', /role: how-explorer/)
+      const setup = await skills.get('setup-pstack')
+      assert.equal(setup?.invocation.modelInvocable, true)
+      assert.equal(setup?.invocation.userInvocable, true)
     } finally {
       await skills.close()
     }
