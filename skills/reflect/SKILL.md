@@ -12,9 +12,9 @@ Invoke when the user says "reflect" or "/reflect". Skip when the conversation is
 
 ## 1. Locate the active transcript
 
-Before fanning out, find this conversation's DSH session log. JSONL backends expose a path through `SessionPersistence.locate`; SQLite backends share one database and have no per-session file (`docs/subsystems/persistence.md`). Use the current session and, if present, session-query tools. Do not glob `~/.cursor/projects/*/` or other workspaces' sessions. That crosses workspace boundaries and reads private chats from unrelated projects. Do not glob other users' `$DSH_HOME`.
+Before fanning out, gather this conversation's record. DSH gives the model no file path to its own session log, and its on-disk format is internal. Use the conversation in your context and, when the opt-in session-query tools are present (`session_event_search`, `session_event_read`, `session_search`), read earlier events through them. Do not read DSH's session store from disk, and do not glob other workspaces' sessions. That crosses workspace boundaries and reads private chats from unrelated projects. Do not glob other users' `$DSH_HOME`.
 
-If no on-disk transcript path resolves, pass a tight digest of this session instead.
+Reviewers cannot see this conversation, and there is no transcript path to hand them. Pass each one a tight digest of the session: the decisions, the tool results that mattered, and every correction from the user. When the session-query tools are present, add this session's id so a reviewer can read exact events itself.
 
 ## 2. Spawn three reviewers in parallel
 

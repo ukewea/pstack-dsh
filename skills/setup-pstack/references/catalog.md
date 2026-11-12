@@ -4,10 +4,14 @@
 
 ## Selectable
 
-A route is selectable when both are true:
+A provider's routes are selectable when `ctx.llm.listProviders()` includes it, `listModels` returns models for it, and one of these holds:
 
-1. `ctx.llm.listProviders()` includes the adapter.
-2. Either an API key is configured (`credentials.describe(ref).configured`, refs collected from settings `apiKeyEnv`, plus `DEEPSEEK_API_KEY` for `deepseek-official`) **or** the dsh-oauth-login / dsh-antigravity-oauth store already has that provider's id **and** the matching adapter (`pi-*` or `agy-*`) is registered.
+1. It has key refs (an `apiKeyEnv` in its settings, an llm-pi-ai vendor's `nativeAuth.env`, or `DEEPSEEK_API_KEY` for `deepseek-official`) and one of them is configured (`credentials.describe(ref).configured` or the environment).
+2. It is a `pi-*` or `agy-*` route and the dsh-oauth-login / dsh-antigravity-oauth store has its login.
+3. It is `cursor` (local Cursor passthrough).
+4. It has neither key refs nor a login store, so its plugin holds its own login (for example `grok` from dsh-llm-grok, `openai-codex` from dsh-codex). This matches the DSH model picker.
+
+`local-*` providers are never selectable: they hand the turn to an outside CLI agent, where the role presets and comment-sicko's write guard cannot apply.
 
 `listModels` + `resolveModelInfo` supply model ids and `reasoning.efforts`. If `efforts` is empty or missing, setup omits effort for that route.
 

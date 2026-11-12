@@ -18,6 +18,14 @@ npm run typecheck
 - spawn docs sending `reasoning_effort` / `thinking`
 - `cursor-team-kit`, `/deslop` as a required control skill
 
+`tests/harness-boundaries.spec.ts` scans every shipped file under `skills/`, `agents/` and `docs/` plus README and HARNESS, scripts included:
+
+- Cursor local state (`~/.cursor/...`), Cursor-only tools and env vars
+- DSH private APIs (`SessionPersistence`, `.locate(`) and `ctx.*` in model-facing text
+- `Bun.spawn*` outside `bootstrap.ts`, and any other subprocess API outside the known list. A new one fails until it is reviewed and reported for the company mirror (`oops` replaces every `Bun.spawn*`).
+
+Each rule's allow list names the file and why it is acceptable; a stale entry also fails.
+
 ## Live check
 
 Install the candidate into a web profile, start the Host, and read its state without sending a model request:
