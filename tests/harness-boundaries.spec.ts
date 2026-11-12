@@ -21,6 +21,8 @@ interface Rule {
   readonly scope?: RegExp
   /** path → why this occurrence is acceptable */
   readonly allow?: Readonly<Record<string, string>>
+  /** Skip the stale-exception check (a branch may legitimately remove the hit). */
+  readonly allowMayVanish?: boolean
 }
 
 const RULES: readonly Rule[] = [
@@ -63,6 +65,8 @@ const RULES: readonly Rule[] = [
     allow: {
       'skills/poteto-mode/scripts/bootstrap.ts': 'installs and re-execs the poteto-mode tools; oops swaps it for a no-op',
     },
+    // On the oops branch bootstrap.ts holds no Bun.spawn at all.
+    allowMayVanish: true,
   },
   {
     id: 'other subprocess API (report to the company mirror before adding)',
@@ -108,7 +112,7 @@ describe('harness boundaries in shipped content', () => {
       }
       assert.deepEqual(hits, [], `${rule.id}: fix these, or add the file to the rule's allow list with a reason`)
       // A stale exception hides the next regression in that file; drop it once fixed.
-      const stale = Object.keys(rule.allow ?? {}).filter(path => !seen.has(path))
+      const stale = rule.allowMayVanish === true ? [] : Object.keys(rule.allow ?? {}).filter(path => !seen.has(path))
       assert.deepEqual(stale, [], `${rule.id}: allow-list entries that no longer match`)
     })
   }
