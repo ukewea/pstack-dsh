@@ -7,6 +7,9 @@ import { emptyOverlay, parseOverlay } from '../src/overlay.ts'
 import { spawnTool, type SpawnSubagents } from '../src/tools.ts'
 import { normalizeRole } from '../src/roles.ts'
 import { resolveSpawn } from '../src/spawn.ts'
+import { mkdtemp } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 
 describe('resolveSpawn', () => {
   it('inherits when the overlay is missing a mapping', () => {
@@ -113,4 +116,46 @@ describe('retired how-critics spawn', () => {
       })
     }
   }
+})
+
+describe('activation spec shape', () => {
+  // DSH 0.2.2-rc.1 reads the task from spec.request. 0.2.2-rc.2 reads the same
+  // fields from the spec itself and fails on spec.parent.id without them.
+  it('puts the task both on the spec and under request', async () => {
+    const specs: Record<string, unknown>[] = []
+    const subagents: SpawnSubagents = {
+      async startActivation(spec) {
+        specs.push(spec as unknown as Record<string, unknown>)
+        return {
+          childId: SessionId('child-shape'),
+          messageId: MessageId('message-shape'),
+          result: Promise.resolve({ output: [], stopReason: 'completed' }),
+          async dispose() {},
+        }
+      },
+      getProvider() {
+        return { name: 'spawn', capabilities: { agentPreset: true, agentOptions: true, outputSchema: false, depthLimit: true }, inheritsParentContext: false }
+      },
+      resolveMaxDepth() { return 2 },
+    }
+    const home = await mkdtemp(join(tmpdir(), 'pstack-shape-'))
+    const parent = { id: SessionId('parent-shape') } as unknown as Agent
+    await spawnTool({ subagents, dshHome: home, env: { DSH_HOME: home } }).execute({
+      role: 'feature',
+      description: 'shape check',
+      prompt: 'add json',
+      cwd: '/tmp/shape',
+    }, { agent: parent, signal: new AbortController().signal })
+    const spec = specs[0]
+    assert.ok(spec !== undefined)
+    const nested = spec.request as Record<string, unknown>
+    for (const view of [spec, nested]) {
+      assert.equal(view.parent, parent)
+      assert.equal(view.cwd, '/tmp/shape')
+      assert.equal(view.agentPreset, 'pstack-poteto')
+      assert.equal(view.maxDepth, 2)
+      assert.match(JSON.stringify(view.prompt), /add json/)
+    }
+    assert.equal(spec.delivery, 'parent')
+  })
 })

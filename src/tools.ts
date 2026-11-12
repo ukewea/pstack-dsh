@@ -216,9 +216,12 @@ export function spawnTool(host: ToolHost): ToolDefinition {
         ...presetSupported ? { agentPreset: preset.id } : {},
         ...maxDepth !== undefined ? { maxDepth } : {},
       }
+      // DSH 0.2.2-rc.1 reads the task from `spec.request`; 0.2.2-rc.2 reads the same
+      // fields from the spec itself. Send both so either runtime finds the parent.
       const activation = await subagents.startActivation({
         provider: providerName,
         label: resolved.description,
+        ...request,
         request,
         signal,
         delivery: resolved.runInBackground ? 'parent' : 'caller',
