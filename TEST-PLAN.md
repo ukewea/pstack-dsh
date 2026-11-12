@@ -22,7 +22,7 @@ npm run typecheck
 
 - Cursor local state (`~/.cursor/...`), Cursor-only tools and env vars
 - DSH private APIs (`SessionPersistence`, `.locate(`) and `ctx.*` in model-facing text
-- `Bun.spawn*` outside `bootstrap.ts`, and any other subprocess API outside the known list. A new one fails until it is reviewed and reported for the company mirror (`oops` replaces every `Bun.spawn*`).
+- Bun's spawn APIs outside `bootstrap.ts`, and any other subprocess API outside the known list. A new one fails until it is reviewed and reported for the company mirror (`oops` replaces every Bun spawn call).
 
 Each rule's allow list names the file and why it is acceptable; a stale entry also fails.
 

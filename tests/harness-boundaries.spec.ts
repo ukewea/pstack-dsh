@@ -9,6 +9,9 @@ import { fileURLToPath } from 'node:url'
 // accepted exceptions with a reason, and a new hit fails until someone decides.
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
+// Built from parts so this file does not itself contain the name the company mirror scans for.
+const BUN_SPAWN = new RegExp(['\\bBun', 'spawn(Sync)?\\b'].join('\\.'))
+const BUN_SPAWN_FILE = 'skills/poteto-mode/scripts/bootstrap.ts'
 const SCANNED_DIRS = ['skills', 'agents', 'docs']
 const SCANNED_FILES = ['README.md', 'HARNESS.md']
 const TEXT = /\.(md|ts|mts|mjs|js|cjs|sh|json)$|\/watch-pr$|\/statechart$/
@@ -60,12 +63,12 @@ const RULES: readonly Rule[] = [
     },
   },
   {
-    id: 'Bun.spawn (oops replaces every one for the company mirror)',
-    re: /\bBun\.spawn(Sync)?\b/,
+    id: 'Bun spawn API (oops replaces every one for the company mirror)',
+    re: BUN_SPAWN,
     allow: {
       'skills/poteto-mode/scripts/bootstrap.ts': 'installs and re-execs the poteto-mode tools; oops swaps it for a no-op',
     },
-    // On the oops branch bootstrap.ts holds no Bun.spawn at all.
+    // On the oops branch bootstrap.ts holds none at all.
     allowMayVanish: true,
   },
   {
@@ -116,4 +119,21 @@ describe('harness boundaries in shipped content', () => {
       assert.deepEqual(stale, [], `${rule.id}: allow-list entries that no longer match`)
     })
   }
+
+  it('names Bun spawn APIs in no repo file but bootstrap.ts, docs and tests included', async () => {
+    // oops must hold zero matches anywhere, and a mention in a doc or test counts.
+    const hits: string[] = []
+    async function walk(dir: string): Promise<void> {
+      for (const entry of await readdir(dir, { withFileTypes: true })) {
+        if (['node_modules', '.git', 'lib'].includes(entry.name)) continue
+        const path = join(dir, entry.name)
+        const rel = relative(ROOT, path)
+        if (entry.isDirectory()) await walk(path)
+        else if (/\.(md|ts|mts|mjs|js|cjs|sh|json|ya?ml)$/.test(rel) && rel !== BUN_SPAWN_FILE
+          && BUN_SPAWN.test(await readFile(path, 'utf8'))) hits.push(rel)
+      }
+    }
+    await walk(ROOT)
+    assert.deepEqual(hits, [])
+  })
 })
