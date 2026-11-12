@@ -9,7 +9,7 @@
 Open **Settings → Plugins → Add plugin** and enter this in “Package name or address”:
 
 ```text
-github:ukewea/pstack-dsh#v0.3.2
+github:ukewea/pstack-dsh#v0.3.3
 ```
 
 桌面端插件管理器负责 Desktop profile 和内置包管理器。本发布已包含编译好的 `lib/`；普通使用不需要 clone 或本地构建。若应用提示刷新或重新打开，请按提示完成。
@@ -19,16 +19,16 @@ The desktop plugin manager owns the Desktop profile and bundled package manager.
 ### Web CLI
 
 ```sh
-dsh plugin --profile web add github:ukewea/pstack-dsh#v0.3.2
+dsh plugin --profile web add github:ukewea/pstack-dsh#v0.3.3
 ```
 
 这条官方 CLI 命令只写入 `web` profile，不能修改 Desktop App 的 profile。对于已运行的 Web Host，请重新打开该 Host 一次，再刷新网页。
 
 This official CLI command writes only the `web` profile; it cannot modify the Desktop App profile. For an already-running Web Host, reopen that Host once and reload the page.
 
-面向官方 DeepSeek Harness **0.2.2-rc.1**（tag `dsh-v0.2.2-rc.1`，npm `@deepseek-ai/dsh@0.2.2-rc.1`）。Node `^22.19.0` 或 `>=24`。`@deepseek-ai/dsh-*` peer 范围是 `>=0.2.2-rc.1 <0.2.3`，接受 `0.2.2-rc.1`，拒绝 `0.2.2` alpha 与 `0.2.1`、`0.2.0` 系列。DSH `0.2.1` 请使用 pstack-dsh `0.2.5`。
+面向官方 DeepSeek Harness **0.2.2-rc.1 与 0.2.2-rc.2**（tag `dsh-v0.2.2-rc.1`，npm `@deepseek-ai/dsh@0.2.2-rc.1` / `@0.2.2-rc.2`）。Node `^22.19.0` 或 `>=24`。`@deepseek-ai/dsh-*` peer 范围是 `>=0.2.2-rc.1 <0.2.3`，接受 `0.2.2-rc.1` 与 `0.2.2-rc.2`，拒绝 `0.2.2` alpha 与 `0.2.1`、`0.2.0` 系列。DSH `0.2.1` 请使用 pstack-dsh `0.2.5`。在 DSH 0.2.2-rc.2 上，pstack-dsh 0.3.2 及更早版本无法用 `pstack_spawn` 启动子代理，请使用 0.3.3 或更新版本。
 
-Targets official DeepSeek Harness **0.2.2-rc.1** (tag `dsh-v0.2.2-rc.1`, npm `@deepseek-ai/dsh@0.2.2-rc.1`). Node `^22.19.0` or `>=24`. The `@deepseek-ai/dsh-*` peer range is `>=0.2.2-rc.1 <0.2.3`: it accepts `0.2.2-rc.1` and rejects `0.2.2` alphas and the `0.2.1` and `0.2.0` series. For DSH `0.2.1`, use pstack-dsh `0.2.5`.
+Targets official DeepSeek Harness **0.2.2-rc.1 and 0.2.2-rc.2** (tag `dsh-v0.2.2-rc.1`, npm `@deepseek-ai/dsh@0.2.2-rc.1` / `@0.2.2-rc.2`). Node `^22.19.0` or `>=24`. The `@deepseek-ai/dsh-*` peer range is `>=0.2.2-rc.1 <0.2.3`: it accepts `0.2.2-rc.1` and `0.2.2-rc.2` and rejects `0.2.2` alphas and the `0.2.1` and `0.2.0` series. For DSH `0.2.1`, use pstack-dsh `0.2.5`. On DSH 0.2.2-rc.2, pstack-dsh 0.3.2 and earlier cannot start children with `pstack_spawn`; use 0.3.3 or later.
 
 **English title.** pstack-dsh, a DeepSeek Harness port of official pstack.
 

@@ -11,7 +11,7 @@ Sister port [pstack-grokbuild](https://github.com/aa2246740/pstack-grokbuild) is
 
 **Yes. The discipline ports. Cursor and Grok runtimes do not.**
 
-Install this repo as a DSH plugin on official DeepSeek Harness **0.2.2-rc.1** (`@deepseek-ai/dsh@0.2.2-rc.1`). `@deepseek-ai/dsh-*` peers are `>=0.2.2-rc.1 <0.2.3`. Do not write `~/.cursor/rules`. Do not invent Cursor panel slugs. Do not send grok `task` fields. Out of the box, children inherit this conversation's route. Configure roles in **Settings → pstack**. `/setup-pstack` is an optional pointer.
+Install this repo as a DSH plugin on official DeepSeek Harness **0.2.2-rc.1 or 0.2.2-rc.2** (`@deepseek-ai/dsh@0.2.2-rc.1` / `@0.2.2-rc.2`). rc.2 moved the task fields of `startActivation` from `spec.request` onto the spec itself; `pstack_spawn` sends both shapes. `@deepseek-ai/dsh-*` peers are `>=0.2.2-rc.1 <0.2.3`. Do not write `~/.cursor/rules`. Do not invent Cursor panel slugs. Do not send grok `task` fields. Out of the box, children inherit this conversation's route. Configure roles in **Settings → pstack**. `/setup-pstack` is an optional pointer.
 
 Official model-facing `subagent` cannot take a pstack role. This plugin registers `pstack_spawn`, which calls `ctx.subagents.startActivation` on the shipped `spawn` provider. Overlay provider, model, and reasoning effort go on the child `agentOptions` before the first request. Role limits use agent presets, not a prompt-only claim.
 
