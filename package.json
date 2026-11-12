@@ -87,6 +87,7 @@
     "@deepseek-ai/dsh-skill": ">=0.2.2-rc.1 <0.2.3",
     "@deepseek-ai/dsh-skill-filesystem": ">=0.2.2-rc.1 <0.2.3",
     "@deepseek-ai/dsh-subagent": ">=0.2.2-rc.1 <0.2.3",
+    "@deepseek-ai/dsh-system-prompt": ">=0.2.2-rc.1 <0.2.3",
     "@deepseek-ai/dsh-tools": ">=0.2.2-rc.1 <0.2.3",
     "@deepseek-ai/dsh-util-values": ">=0.2.2-rc.1 <0.2.3",
     "react": "^18.2.0"
@@ -113,6 +114,9 @@
     "@deepseek-ai/dsh-subagent": {
       "optional": true
     },
+    "@deepseek-ai/dsh-system-prompt": {
+      "optional": true
+    },
     "react": {
       "optional": true
     }
@@ -136,6 +140,7 @@
     "@deepseek-ai/dsh-skill": ">=0.2.2-rc.1 <0.2.3",
     "@deepseek-ai/dsh-skill-filesystem": ">=0.2.2-rc.1 <0.2.3",
     "@deepseek-ai/dsh-subagent": ">=0.2.2-rc.1 <0.2.3",
+    "@deepseek-ai/dsh-system-prompt": ">=0.2.2-rc.1 <0.2.3",
     "@deepseek-ai/dsh-tools": ">=0.2.2-rc.1 <0.2.3",
     "@deepseek-ai/dsh-util-values": ">=0.2.2-rc.1 <0.2.3",
     "@types/node": "^22.20.0",

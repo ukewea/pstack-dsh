@@ -1,6 +1,6 @@
 # DSH harness map
 
-This port carries pstack 0.15's 23 playbooks and 24 principles, with DSH call sites. Invocation flags match upstream: only `setup-pstack` is model-invocable, and poteto-mode reads every other skill by path. See [UPGRADE-0.15.md](./UPGRADE-0.15.md) for the pinned upstream source and excluded runtime changes.
+This port carries pstack 0.15's 23 playbooks and 24 principles, with DSH call sites. Invocation flags match upstream: only `setup-pstack` is model-invocable, and poteto-mode reads every other skill by path. Subagents learn that path two ways: `pstack_spawn` puts it in the child's prompt, and pstack adds one line to every subagent's system context (depth above 0, top-level agents get none), so a child started by DSH's own `subagent` tool or Agent Teams can still read poteto-mode instead of asking the `skill` tool, which refuses manual-only skills. See [UPGRADE-0.15.md](./UPGRADE-0.15.md) for the pinned upstream source and excluded runtime changes.
 
 Sources: official pstack (`cursor/plugins` `pstack/`) and official DeepSeek Harness (`deepseek-ai/deepseek-harness`). Tool names and fields below are from DSH source, not from Cursor `Task` and not from grok-build `task`.
 

@@ -11,6 +11,7 @@ import type {} from '@deepseek-ai/dsh-skill'
 import type { SubagentRuntime } from '@deepseek-ai/dsh-subagent'
 import { defineTool, type ToolRunContext } from '@deepseek-ai/dsh-tools'
 import { snapshotJsonValue, type JsonValue } from '@deepseek-ai/dsh-util-values'
+import { watchChildSkillHint } from './child-skill-hint.ts'
 import { BOOT_MARKER, PLUGIN_ID, SPAWN_PROVIDER } from './ids.ts'
 import { Config, type Config as PluginConfig } from './plugin-config.ts'
 import { COMMENT_SICKO_PRESET_ID, POTETO_PRESET_ID, rolePresetPlugins } from './presets.ts'
@@ -66,6 +67,7 @@ export function apply(ctx: Context, config?: PluginConfig): void {
   registerOne(ctx, overlayWriteTool(host))
   registerOne(ctx, spawnTool(host))
   watchRolePresets(ctx)
+  watchChildSkillHint(ctx)
   ctx.skills.registerProvider(control => createSkillProvider(ctx, control))
   ctx.inject(['webServer', 'connection'], webCtx => {
     registerPstackSettingsRoutes(webCtx, host)

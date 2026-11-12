@@ -40,6 +40,8 @@ From a page opened at that URL, POST `{ type: 'client-request', rpcId, method, p
 - `agentPresets/list` with `args: {}` lists `pstack-poteto` and `pstack-comment-sicko`, neither `broken`.
 - `skills/list` with `args: { request: { sessionId } }` lists every bundled skill under `node_modules/pstack-dsh/skills/`.
 
+With a model (needs a real request): ask a session to start one child with DSH's built-in `subagent` tool (not `pstack_spawn`) and have the child read poteto-mode and quote its first heading. The child must use the read tool on the absolute path from its system context and must not call `skill` for poteto-mode. Also run both `pstack_spawn` modes (`run_in_background` true and false) on the current DSH runtime.
+
 ## Catalog / overlay (no network models required)
 
 `tests/catalog.spec.ts` and `tests/overlay.spec.ts` cover:
