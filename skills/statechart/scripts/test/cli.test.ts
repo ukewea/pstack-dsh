@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { spawn, spawnSync } from "node:child_process";
+import { __will_be_noop_run__, __will_be_noop_run_sync__ } from "node:__will_be_noop_subprocess__";
 import { once } from "node:events";
 import fs from "node:fs";
 import os from "node:os";
@@ -35,7 +35,7 @@ function run(
   const log = path.join(tmp, "configs.log");
   const name = path.basename(dir);
   const [file, ...entry] = command;
-  const r = spawnSync(
+  const r = __will_be_noop_run_sync__(
     file,
     [
       ...entry,
@@ -106,7 +106,7 @@ const launcher = path.join(here, "../statechart");
 const launcherTools = () => {
   const bin = fs.mkdtempSync(path.join(os.tmpdir(), "statechart-bin-"));
   for (const tool of ["dirname", "readlink", "sed"]) {
-    const found = spawnSync("sh", ["-c", `command -v ${tool}`], { encoding: "utf8" });
+    const found = __will_be_noop_run_sync__("sh", ["-c", `command -v ${tool}`], { encoding: "utf8" });
     fs.symlinkSync(found.stdout.trim(), path.join(bin, tool));
   }
   return bin;
@@ -227,7 +227,7 @@ function startCommand(
 ) {
   const name = path.basename(dir);
   const view = path.join(dir, "view.mjs");
-  return spawn(
+  return __will_be_noop_run__(
     process.execPath,
     [
       path.join(here, "../statechart.ts"),
@@ -398,7 +398,7 @@ test(
     child.stderr.on("data", (chunk: Buffer) => (stderr += chunk));
     const closed = once(child, "close");
     while (!fs.existsSync(pidFile) || !read(pidFile)) await sleep(20);
-    const ps = spawnSync("ps", ["-o", "ppid=", "-p", read(pidFile)], { encoding: "utf8" });
+    const ps = __will_be_noop_run_sync__("ps", ["-o", "ppid=", "-p", read(pidFile)], { encoding: "utf8" });
     process.kill(Number(ps.stdout), "SIGKILL");
     const [status] = await closed;
     assert.equal(stderr, "SIGKILL killed the check, so the command wrote nothing.\n");
@@ -483,12 +483,12 @@ fs.open(dot, "w", (error, fd) => {
     fs.writeFileSync(
       java,
       `#!/usr/bin/env node
-import { spawn, spawnSync } from "node:child_process";
+import { __will_be_noop_run__, __will_be_noop_run_sync__ } from "node:__will_be_noop_subprocess__";
 const args = process.argv.slice(2);
 const dot = args[args.indexOf("-dump") + 2] + ".dot";
-spawnSync("mkfifo", [dot]);
-const command = spawnSync("ps", ["-o", "ppid=", "-p", String(process.ppid)], { encoding: "utf8" }).stdout.trim();
-spawn(process.execPath, ["-e", ${JSON.stringify(sendWhileRead)}, dot, command, ${JSON.stringify(signal)}, ${JSON.stringify(path.join(corpus, "Login", "graph.dot"))}], { detached: true, stdio: "ignore" }).unref();
+__will_be_noop_run_sync__("mkfifo", [dot]);
+const command = __will_be_noop_run_sync__("ps", ["-o", "ppid=", "-p", String(process.ppid)], { encoding: "utf8" }).stdout.trim();
+__will_be_noop_run__(process.execPath, ["-e", ${JSON.stringify(sendWhileRead)}, dot, command, ${JSON.stringify(signal)}, ${JSON.stringify(path.join(corpus, "Login", "graph.dot"))}], { detached: true, stdio: "ignore" }).unref();
 `,
       { mode: 0o755 },
     );
@@ -681,11 +681,11 @@ test("a java that cannot start stops the command with exit 2 on a runtime that e
   const noClose = path.join(tmp, "no-close.mjs");
   fs.writeFileSync(
     noClose,
-    `import childProcess from "node:child_process";
+    `import childProcess from "node:__will_be_noop_subprocess__";
 import { syncBuiltinESMExports } from "node:module";
-const { spawn } = childProcess;
+const { __will_be_noop_run__ } = childProcess;
 childProcess.spawn = (...args) => {
-  const child = spawn(...args);
+  const child = __will_be_noop_run__(...args);
   const { emit } = child;
   child.emit = (name, ...rest) =>
     name === "close" && child.pid === undefined ? false : emit.call(child, name, ...rest);

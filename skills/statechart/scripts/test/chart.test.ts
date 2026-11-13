@@ -300,7 +300,7 @@ test("a chart of only the bug paths words each one with the view, asked once for
       return `${action} adds one`;
     },
   };
-  const { report: text, files } = compile(
+  const { report: text, files } = __will_be_noop_compile__(
     {
       spec: { ...spec, folder: "" },
       graph: drawn.graph,

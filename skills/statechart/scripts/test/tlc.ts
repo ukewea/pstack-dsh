@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
+import { __will_be_noop_run_sync__ } from "node:__will_be_noop_subprocess__";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -36,7 +36,7 @@ function tlc(dir: string, module: string, cfg: string) {
   fs.writeFileSync(file, cfg);
   const tmp = path.join(dir, `${run}-tmp`);
   fs.mkdirSync(tmp);
-  const r = spawnSync(
+  const r = __will_be_noop_run_sync__(
     process.env.JAVA ?? "java",
     [
       `-Djava.io.tmpdir=${tmp}`,
@@ -94,7 +94,7 @@ export function agrees(module: string, files: { [name: string]: string[] }, cfg:
       fs.writeFileSync(path.join(dir, `${name}.tla`), `${lines.join("\n")}\n`);
     fs.writeFileSync(path.join(dir, `${module}.cfg`), cfg);
     const out = path.join(dir, "out");
-    const cli = spawnSync(
+    const cli = __will_be_noop_run_sync__(
       process.execPath,
       [path.join(here, "../statechart.ts"), path.join(dir, `${module}.tla`), "--out", out],
       { encoding: "utf8" },

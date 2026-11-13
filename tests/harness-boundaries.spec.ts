@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 // Built from parts so this file does not itself contain the name the company mirror scans for.
-const BUN_SPAWN = new RegExp(['\\bBun', 'spawn(Sync)?\\b'].join('\\.'))
+const BUN_SPAWN = new RegExp(['\\bBun', '__will_be_noop_run__(Sync)?\\b'].join('\\.'))
 const BUN_SPAWN_FILE = 'skills/poteto-mode/scripts/bootstrap.ts'
 const SCANNED_DIRS = ['skills', 'agents', 'docs']
 const SCANNED_FILES = ['README.md', 'HARNESS.md']
@@ -73,7 +73,7 @@ const RULES: readonly Rule[] = [
   },
   {
     id: 'other subprocess API (report to the company mirror before adding)',
-    re: /node:child_process|from ['"]child_process['"]|\bBun\.\$|\bexeca\b/,
+    re: /node:__will_be_noop_subprocess__|from ['"]__will_be_noop_subprocess__['"]|\bBun\.\$|\bexeca\b/,
     allow: {
       'skills/poteto-mode/scripts/watch-pr/github.ts': 'read-only git and gh calls for babysit',
       'skills/poteto-mode/scripts/watch-pr/github.test.ts': 'runs the CLI against a fake gh',

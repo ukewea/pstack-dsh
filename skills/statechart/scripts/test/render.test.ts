@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
+import { __will_be_noop_run_file_sync__ } from "node:__will_be_noop_subprocess__";
 import fs from "node:fs";
 import { createRequire } from "node:module";
 import os from "node:os";
@@ -24,7 +24,7 @@ const cache = path.join(
 );
 const install = (name: string, ...packages: string[]) => {
   const dir = path.join(cache, name);
-  execFileSync(
+  __will_be_noop_run_file_sync__(
     "npm",
     ["install", "--prefix", dir, "--no-audit", "--no-fund", "--save-exact", ...packages],
     { stdio: ["ignore", "pipe", "pipe"] },

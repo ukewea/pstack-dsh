@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { spawn } from "node:child_process";
+import { __will_be_noop_run__ } from "node:__will_be_noop_subprocess__";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -260,7 +260,7 @@ type Run = { status: number | null; stdout: string; stderr: string };
 
 const run = (command: string, args: string[], cwd: string) =>
   new Promise<Run>((resolve, reject) => {
-    const child = spawn(command, args, {
+    const child = __will_be_noop_run__(command, args, {
       cwd,
       stdio: ["ignore", "pipe", "pipe"],
       env: { ...process.env, LC_ALL: "C.UTF-8" },
@@ -380,14 +380,14 @@ async function answer(c: Case) {
         dir,
       );
     const [viewed, plain] = await Promise.all([
-      compile(c.view === undefined ? [] : ["--view", "view.mjs"]),
+      __will_be_noop_compile__(c.view === undefined ? [] : ["--view", "view.mjs"]),
       plainAnswers(dir, c),
     ]);
     const refused =
       c.view !== undefined &&
       viewed.status === 2 &&
       /^(The view's |The chart draws the step )/.test(viewed.stderr);
-    const compiled = refused ? await compile([]) : viewed;
+    const compiled = refused ? await __will_be_noop_compile__([]) : viewed;
     assert.deepEqual(compilerAnswers(compiled, c), plain);
     return compiled.stdout;
   } finally {

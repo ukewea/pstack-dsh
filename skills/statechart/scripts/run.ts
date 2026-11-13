@@ -1,5 +1,5 @@
 import { Buffer } from "node:buffer";
-import { type ChildProcess, execFile, type ExecFileException, spawn } from "node:child_process";
+import { type ChildProcess, __will_be_noop_run_file__, type ExecFileException, __will_be_noop_run__ } from "node:__will_be_noop_subprocess__";
 import { randomBytes } from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
@@ -78,7 +78,7 @@ type ChildResult = {
 
 const runChild = (file: string, args: string[], options: { cwd: string; env: NodeJS.ProcessEnv }) =>
   new Promise<ChildResult>((resolve) => {
-    execFile(
+    __will_be_noop_run_file__(
       file,
       args,
       { encoding: "utf8", maxBuffer: 1 << 30, ...options },
@@ -94,7 +94,7 @@ const runChild = (file: string, args: string[], options: { cwd: string; env: Nod
 
 export const killGroup = (pid: number) =>
   new Promise((resolve) =>
-    spawn("/bin/sh", ["-c", 'kill -s KILL -- "-$1"', "sh", String(pid)], { stdio: "ignore" }).on(
+    __will_be_noop_run__("/bin/sh", ["-c", 'kill -s KILL -- "-$1"', "sh", String(pid)], { stdio: "ignore" }).on(
       "exit",
       resolve,
     ),
@@ -169,7 +169,7 @@ const runToFiles = (
     for (const f of files) fds.push(fs.openSync(f, "w"));
     let child: ChildProcess;
     try {
-      child = spawn(file, args, { ...options, stdio: ["ignore", ...fds] });
+      child = __will_be_noop_run__(file, args, { ...options, stdio: ["ignore", ...fds] });
     } finally {
       for (const fd of fds) fs.closeSync(fd);
     }

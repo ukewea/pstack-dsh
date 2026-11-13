@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { spawn } from "node:child_process";
+import { __will_be_noop_run__ } from "node:__will_be_noop_subprocess__";
 import { once } from "node:events";
 import fs from "node:fs";
 import os from "node:os";
@@ -38,7 +38,7 @@ test(
           fs.mkdirSync(tool);
           fs.mkdirSync(twin);
           const view = path.join(dir, "view.mjs");
-          const child = spawn(
+          const child = __will_be_noop_run__(
             process.execPath,
             [
               path.join(here, "../statechart.ts"),

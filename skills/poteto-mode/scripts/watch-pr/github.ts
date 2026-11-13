@@ -1,4 +1,4 @@
-import { spawn } from "node:child_process";
+import { __will_be_noop_run__ } from "node:__will_be_noop_subprocess__";
 import type * as T from "./types.ts";
 import { nonEmpty, parsePrNumber } from "./types.ts";
 export const REVIEW_THREADS_QUERY =
@@ -31,7 +31,7 @@ const firstLine = (value: string): string =>
   value.trim().split(/\r?\n/, 1)[0]?.slice(0, 240) ?? "";
 function run(argv: readonly [string, ...string[]]): Promise<CommandResult> {
   return new Promise((resolve, reject) => {
-    const child = spawn(argv[0], argv.slice(1), {
+    const child = __will_be_noop_run__(argv[0], argv.slice(1), {
       stdio: ["ignore", "pipe", "pipe"],
     });
     let stdout = "";

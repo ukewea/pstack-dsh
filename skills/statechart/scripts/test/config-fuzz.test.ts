@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
+import { __will_be_noop_run_sync__ } from "node:__will_be_noop_subprocess__";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -156,7 +156,7 @@ function generate(random: () => number) {
 }
 
 function readInTlc(files: string[], jar: string) {
-  const r = spawnSync(
+  const r = __will_be_noop_run_sync__(
     process.env.JAVA || "java",
     ["-cp", jar, path.join(here, "ConfigOracle.java")],
     { input: `${files.join("\n")}\n`, encoding: "utf8", maxBuffer: 1 << 30 },

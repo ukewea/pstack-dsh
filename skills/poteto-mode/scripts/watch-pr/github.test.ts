@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { spawnSync } from "node:child_process";
+import { __will_be_noop_run_sync__ } from "node:__will_be_noop_subprocess__";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -463,7 +463,7 @@ describe("context and stack discovery", () => {
         { number: 41, headRefName: "main", baseRefName: "main", isCrossRepository: true },
         { number: 42, headRefName: "feature", baseRefName: "main", isCrossRepository: false }
       ])));`;
-    const child = spawnSync(process.execPath, ["-e", program], { encoding: "utf8", timeout: 2000 });
+    const child = __will_be_noop_run_sync__(process.execPath, ["-e", program], { encoding: "utf8", timeout: 2000 });
     expect(child.error).toBeUndefined();
     expect(child.status).toBe(0);
     expect(JSON.parse(child.stdout).map((item: { number: number }) => item.number)).toEqual([42]);
@@ -481,7 +481,7 @@ printf '%s\\n' '[{"number":42,"headRefName":"feature","baseRefName":"main","isCr
 `, { mode: 0o755 });
       const program = `import { GhGitHubReader } from ${JSON.stringify(import.meta.dir + "/github.ts")};
         console.log(JSON.stringify(await new GhGitHubReader().openPullRequests({ owner: "owner", repo: "repo" })));`;
-      const child = spawnSync(process.execPath, ["-e", program], {
+      const child = __will_be_noop_run_sync__(process.execPath, ["-e", program], {
         encoding: "utf8", timeout: 2000,
         env: { ...process.env, PATH: directory + ":" + process.env.PATH },
       });

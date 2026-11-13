@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { spawnSync } from "node:child_process";
+import { __will_be_noop_run_sync__ } from "node:__will_be_noop_subprocess__";
 import fs from "node:fs";
 import path from "node:path";
 import { plainText } from "../backends/plain-text.ts";
@@ -20,7 +20,7 @@ if (log && config) fs.appendFileSync(log, `## ${name}\n${fs.readFileSync(config,
 const TAG = /"chart-[0-9a-f]{32}"/g;
 
 const java = (folder: string, args: string[]) => {
-  const r = spawnSync(process.env.STATECHART_JAVA ?? "java", args, {
+  const r = __will_be_noop_run_sync__(process.env.STATECHART_JAVA ?? "java", args, {
     encoding: "utf8",
     maxBuffer: 1 << 30,
   });

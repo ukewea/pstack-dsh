@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { type ChildProcess, spawn } from "node:child_process";
+import { type ChildProcess, __will_be_noop_run__ } from "node:__will_be_noop_subprocess__";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -97,7 +97,7 @@ try {
           "--allow-env",
         ]
       : process.execArgv;
-    const worker = spawn(
+    const worker = __will_be_noop_run__(
       process.execPath,
       [
         ...runtime,
@@ -113,7 +113,7 @@ try {
         env: { ...process.env, TMPDIR: tmp },
       },
     );
-    janitor = spawn(
+    janitor = __will_be_noop_run__(
       "/bin/sh",
       [
         "-c",

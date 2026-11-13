@@ -1,7 +1,7 @@
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { spawnSync } from "node:child_process";
+import { __will_be_noop_run_sync__ } from "node:__will_be_noop_subprocess__";
 import { expect, test } from "bun:test";
 
 const checker = join(import.meta.dir, "check-plan.mjs");
@@ -55,7 +55,7 @@ const runPlan = (example: string, expectedExit: number) => {
 	const file = join(directory, "plan.md");
 	writeFileSync(file, validPlan + example);
 	try {
-		const result = spawnSync("node", [checker, file], { encoding: "utf8" });
+		const result = __will_be_noop_run_sync__("node", [checker, file], { encoding: "utf8" });
 		expect(result.status).toBe(expectedExit);
 		return result;
 	} finally {
