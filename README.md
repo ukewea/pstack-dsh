@@ -38,9 +38,9 @@ Targets official DeepSeek Harness **0.2.2-rc.1 and 0.2.2-rc.2** (tag `dsh-v0.2.2
 
 ## 来源 / Credits
 
-23 个玩法（playbooks）和 24 条原则（principles）是 [poteto](https://x.com/poteto) 写的，出自 [official pstack](https://github.com/cursor/plugins/tree/main/pstack)。本仓库是 DeepSeek Harness 移植：最初由 [aa2246740/pstack-dsh](https://github.com/aa2246740/pstack-dsh) 完成，现由 [ukewea/pstack-dsh](https://github.com/ukewea/pstack-dsh) 继续维护。调用层用 [HARNESS.md](./HARNESS.md) 里的 DSH 工具名。玩法和原则不是本仓库写的。
+22 个玩法（playbooks）和 24 条原则（principles）是 [poteto](https://x.com/poteto) 写的，出自 [official pstack](https://github.com/cursor/plugins/tree/main/pstack)。本仓库是 DeepSeek Harness 移植：最初由 [aa2246740/pstack-dsh](https://github.com/aa2246740/pstack-dsh) 完成，现由 [ukewea/pstack-dsh](https://github.com/ukewea/pstack-dsh) 继续维护。调用层用 [HARNESS.md](./HARNESS.md) 里的 DSH 工具名。玩法和原则不是本仓库写的。
 
-The 23 playbooks and 24 principles are [poteto](https://x.com/poteto)'s, from [official pstack](https://github.com/cursor/plugins/tree/main/pstack). This repository is the DeepSeek Harness port, first made by [aa2246740/pstack-dsh](https://github.com/aa2246740/pstack-dsh) and now maintained at [ukewea/pstack-dsh](https://github.com/ukewea/pstack-dsh). Harness calls use DSH tools named in [HARNESS.md](./HARNESS.md). This port did not author those playbooks or principles.
+The 22 playbooks and 24 principles are [poteto](https://x.com/poteto)'s, from [official pstack](https://github.com/cursor/plugins/tree/main/pstack). This repository is the DeepSeek Harness port, first made by [aa2246740/pstack-dsh](https://github.com/aa2246740/pstack-dsh) and now maintained at [ukewea/pstack-dsh](https://github.com/ukewea/pstack-dsh). Harness calls use DSH tools named in [HARNESS.md](./HARNESS.md). This port did not author those playbooks or principles.
 
 ## 本地目录 / Local checkout
 
@@ -129,8 +129,12 @@ When invoked, `/poteto-mode`:
 
 The full rules live in [`skills/poteto-mode/SKILL.md`](./skills/poteto-mode/SKILL.md). DSH has no Cursor Custom Mode, so `/poteto-mode` attaches only to the message you type it in. Type it again when a later message starts new work.
 
+`/poteto-mode` 启动的每个子 agent 都先读 [`worker.md`](./skills/poteto-mode/worker.md)：kickoff 给的标准就是全部标准，可撤销的决定自己做、不来问你，PR 直接开成可审阅状态。`pstack_spawn` 会自动把这条指令放在 kickoff 第一行。
+
+Every agent `/poteto-mode` starts reads [`worker.md`](./skills/poteto-mode/worker.md) first: the kickoff's bar is the whole bar, reversible calls get made instead of asked, and PRs open ready for review. `pstack_spawn` puts that instruction first in each kickoff for you.
+
 <details>
-<summary>23 个玩法 / the twenty-three playbooks</summary>
+<summary>22 个玩法 / the twenty-two playbooks</summary>
 
 | playbook | for |
 |---|---|
@@ -149,7 +153,6 @@ The full rules live in [`skills/poteto-mode/SKILL.md`](./skills/poteto-mode/SKIL
 | [babysit](./skills/poteto-mode/playbooks/babysit.md) | drive a pr or a stack to merge-ready: conflicts, review threads, ci. |
 | [shipping](./skills/poteto-mode/playbooks/shipping.md) | independently verify a green stack, then land the contiguous verified run bottom-up through github by default or origin when available. |
 | [autonomous run](./skills/poteto-mode/playbooks/autonomous-run.md) | drive a long task to completion without stopping. |
-| [orchestrate](./skills/poteto-mode/playbooks/orchestrate.md) | a standing project handed to one coordinator chat: multi-day, many stacked prs, fleets of subagents. |
 | [autopilot-full](./skills/poteto-mode/playbooks/autopilot-full.md) | run independent prs to merged with one owner per pr. a swarm verifies each code-ready head, and every later change to the patch gets a fresh check. |
 | [autopilot-stack](./skills/poteto-mode/playbooks/autopilot-stack.md) | autopilot-full without the merge. build and verify prs for the operator to review and land, stacking a pr only on a pr it builds on. |
 | [session pickup](./skills/poteto-mode/playbooks/session-pickup.md) | resume or take over a prior agent's in-flight work. |
@@ -162,9 +165,9 @@ The full rules live in [`skills/poteto-mode/SKILL.md`](./skills/poteto-mode/SKIL
 
 ### 技能 / Skills
 
-`/poteto-mode` 会在步骤需要时替你运行其中大部分技能（`how`、`why`、`architect`、`arena`、`swarm`、`interrogate`、`unslop`、`no-comments`、`technical-writing`、`tdd` 以及各条原则），做法是按路径读取对应的 bundled `SKILL.md`。想直接用某个技能时，输入 `/名称`。
+`/poteto-mode` 会在步骤需要时替你运行其中大部分技能（`why`、`architect`、`arena`、`swarm`、`interrogate`、`unslop`、`no-comments`、`technical-writing`、`tdd` 以及各条原则），做法是按路径读取对应的 bundled `SKILL.md`。想直接用某个技能时，输入 `/名称`。
 
-`/poteto-mode` runs most of these for you when a step needs them (`how`, `why`, `architect`, `arena`, `swarm`, `interrogate`, `unslop`, `no-comments`, `technical-writing`, `tdd`, and the principles). It reads each one from its bundled `SKILL.md` by path. The table is for when you want one directly, by typing `/<name>`.
+`/poteto-mode` runs most of these for you when a step needs them (`why`, `architect`, `arena`, `swarm`, `interrogate`, `unslop`, `no-comments`, `technical-writing`, `tdd`, and the principles). It reads each one from its bundled `SKILL.md` by path. The table is for when you want one directly, by typing `/<name>`.
 
 <details>
 <summary>全部技能 / all skills</summary>
@@ -173,9 +176,9 @@ The full rules live in [`skills/poteto-mode/SKILL.md`](./skills/poteto-mode/SKIL
 |---|---|
 | [`/poteto-mode`](./skills/poteto-mode/SKILL.md) | default entry point for any non-trivial task. |
 | [`/in-your-own-words`](./skills/in-your-own-words/SKILL.md) | you want the agent to play back your goal and the problem before it starts. runs only when you type `/in-your-own-words`. |
-| [`/sharpen`](./skills/sharpen/SKILL.md) | you want a prompt made deeper, not bigger, before you send it: what a top professional would do that you didn't ask for, the raw material they'd start from, their methods and tools, and an outside check that the result is right. hands back the rewritten prompt and leaves your choices open. doesn't do the task. runs only when you type `/sharpen`. |
+| [`/sharpen`](./skills/sharpen/SKILL.md) | you want a prompt made deeper, not bigger, before you send it: what a top professional would do that you didn't ask for, the raw material they'd start from, their methods and tools, and an outside check that the result is right. hands back the rewritten prompt, which asks the agent to prototype any choice an experiment can settle and leaves product and preference choices to you. doesn't do the task. runs only when you type `/sharpen`. |
 | [`/how`](./skills/how/SKILL.md) | you want a walkthrough of how a subsystem works. |
-| [`/why`](./skills/why/SKILL.md) | you want to know why something was built this way. discovers available MCPs at run time and queries each evidence category in parallel (source control, issue tracker, long-form docs, real-time chat, infra observability, error tracking, analytics warehouse). |
+| [`/why`](./skills/why/SKILL.md) | you want to know why something was built this way. answers from the record, not the code: the commits and pr discussions that introduced it and each later change, and other sources when that trail is thin. cites what the authors wrote, marks its own inferences, and says what the record does not answer. |
 | [`/recall`](./skills/recall/SKILL.md) | you're starting or resuming work and want your recent context on a topic rebuilt from your own chat history and the shared record, handed back as a tight current-state brief. |
 | [`/ketchup`](./skills/ketchup/SKILL.md) | you want what changed in this chat since your last message, in plain words and small visuals, with every item waiting on you listed and decidable from the reply alone, even when that makes the reply long. |
 | [`/blast-radius`](./skills/blast-radius/SKILL.md) | you have a small-looking change and want to know what else it could break, with the one fact it's safe because of proven by running code, not asserted. |
@@ -245,9 +248,9 @@ Twenty-four short skills, one principle each. `poteto-mode` indexes them inline 
 
 ## 上游 0.15 同步 / Upstream sync
 
-技能内容同步至 `cursor/plugins` 的 pstack 0.15.36，提交 `de8ee15dd1194627d21eb5fcd41cb1873208dabb`。保留 DSH 工具和角色路由。未包含 Cursor 专用的 make-bot-ui、poteto-help 和 automations，也未包含 ketchup-video（DSH 没有视频渲染，网页对话不能播放 mp4）。
+技能内容同步至 `cursor/plugins` 的 pstack 0.15.43，提交 `2f87c854fe3e2fcda44ca86b46ede35aad3c46b7`。保留 DSH 工具和角色路由。未包含 Cursor 专用的 make-bot-ui、poteto-help 和 automations，也未包含 ketchup-video（DSH 没有视频渲染，网页对话不能播放 mp4）。
 
-Skill content is synced to pstack 0.15.36 from `cursor/plugins` (commit `de8ee15dd1194627d21eb5fcd41cb1873208dabb`), keeping DSH tools and role routing. Not included: Cursor-only make-bot-ui, poteto-help and automations, and ketchup-video (DSH has no video renderer and its web chat cannot play mp4).
+Skill content is synced to pstack 0.15.43 from `cursor/plugins` (commit `2f87c854fe3e2fcda44ca86b46ede35aad3c46b7`), keeping DSH tools and role routing. Not included: Cursor-only make-bot-ui, poteto-help and automations, and ketchup-video (DSH has no video renderer and its web chat cannot play mp4).
 
 设置页的「Poteto 0.15 推荐」仅供参考，不会替换用户已保存的模型或 effort。`how-critics` 不再显示或启动代理，旧配置仍可读写并保留。不包含 Cursor 专用的 make-bot-ui。
 
@@ -266,6 +269,10 @@ Do not send `model` unless that pair was detected live. Missing overlay inherits
 **effort.** 只提供该路由 `resolveModelInfo().reasoning.efforts` 列出的 id。没有 effort 字段就省略。skill 从不在 spawn 上发送 `reasoning_effort` 或 `thinking`。官方 `subagent` schema 没有这些字段。角色 effort 写在 overlay 里，spawn 时放进 child `agentOptions.reasoningEffort`，不经 `agent/request` 改路由。
 
 Effort is only the ids that route actually accepts. If the route has none, omit it. Skills never send `reasoning_effort` or `thinking` on spawn. Official `subagent` has no such field. Role effort lives in the overlay and is placed on the child `agentOptions.reasoningEffort` before the first request. `agent/request` does not change the route.
+
+**上游推荐 / Upstream recommendation.** 上游 pstack 现在把代码角色（feature、refactoring、bug fix、perf、hillclimb）、文字和判断都交给 Opus 5.5 `xhigh`，任何角色都不超过 `xhigh`。评审面板以外，只有你点名，或同一份 brief 的两次 Opus 5.5 运行都失败后，才用 Fable 5.2。默认面板是 Fable 5.2 / Opus 5.5 / Gemini 4 Carbon。这些只是参考，本移植不会据此替你选路由或 effort。
+
+Upstream pstack now sends code delegates (feature, refactoring, bug fix, perf, hillclimb), prose, and judgment to Opus 5.5 at `xhigh`, and no role runs above `xhigh`. Outside a review panel, Fable 5.2 runs only when you name it or after two Opus 5.5 runs of the same brief fail. The default panel is Fable 5.2 / Opus 5.5 / Gemini 4 Carbon. These are reference only. This port never picks a route or effort from them.
 
 **设置 / Settings.** 配置页是官方 Settings 里的 `settings.section`（id `pstack`，order 16）。只列出已登录路由；effort 只列出该路由 live `resolveModelInfo().reasoning.efforts`。空列表就是继承父对话。保存写同一份 overlay，不是第二份配置。
 

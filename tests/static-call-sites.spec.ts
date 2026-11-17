@@ -5,6 +5,7 @@ import { describe, it } from 'node:test'
 import { fileURLToPath } from 'node:url'
 import { openBundledSkills } from './support/bundled-skills.ts'
 import { spawnTool } from '../src/tools.ts'
+import { RETIRED_ROLES } from '../src/roles.ts'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const SKILLS = join(ROOT, 'skills')
@@ -50,15 +51,15 @@ describe('skill call sites', () => {
     assert.deepEqual(hits, [])
   })
 
-  it('does not invoke the retired how-critics role from skills', async () => {
+  it('does not invoke a retired role from skills or agents', async () => {
+    const retired = Object.keys(RETIRED_ROLES).join('|')
+    const asArgument = new RegExp(`["']?role["']?\\s*[:=]\\s*["'\`]?(${retired})\\b`)
+    const onSpawnLine = new RegExp(`pstack_spawn[^\\n]*\\b(${retired})\\b`)
     const hits: string[] = []
-    for (const file of await walkMd(SKILLS)) {
+    for (const file of [...await walkMd(SKILLS), ...await walkMd(join(ROOT, 'agents'))]) {
       const text = await readFile(file, 'utf8')
       // Match JSON, YAML, and JavaScript role arguments while allowing retirement notes.
-      if (/["']?role["']?\s*[:=]\s*["'`]?how-critics\b/.test(text)
-        || /pstack_spawn[^\n]*\bhow-critics\b/.test(text)) {
-        hits.push(file.slice(ROOT.length + 1))
-      }
+      if (asArgument.test(text) || onSpawnLine.test(text)) hits.push(file.slice(ROOT.length + 1))
     }
     assert.deepEqual(hits, [])
   })

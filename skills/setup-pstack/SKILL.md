@@ -23,9 +23,23 @@ Do not write `~/.cursor/rules`. Do not write `~/.grok/roles`. Do not invent Curs
 
 Only live logged-in routes. Same rules as [`references/catalog.md`](references/catalog.md): API keys already configured in this DSH, plus OAuth store ids (dsh-oauth-login, dsh-antigravity-oauth) whose matching adapter is registered. Empty list means inherit. If `recommendOauthLogin` is true, mention installing https://github.com/aa2246740/dsh-oauth-login in one line. Do not block.
 
+## Roles and upstream recommendations
+
+The page shows each role with what upstream pstack 0.15.43 recommends. That is display copy, not a default: an unmapped role inherits this conversation. Map a role only to a route the page lists.
+
+| Role key | Upstream recommends |
+|---|---|
+| `feature`, `refactoring`, `bug-fix`, `perf-issue`, `hillclimb`, `judgment-and-prose` | `claude-opus-5-5-xhigh-fast` |
+| `swarm-workers` | `claude-opus-5-5-high-fast` |
+| `arena-runners`, `interrogate-reviewers` | `claude-fable-5-2-high`, `claude-opus-5-5-high-fast`, `gemini-4-carbon-high` |
+| `arena-cross-judge-pool` | `claude-opus-5-5-high-fast`, `gemini-4-carbon-high` |
+| `independent-verifier`, `poteto-agent`, `comment-sicko` | none, inherit unless you map one |
+
+Upstream 0.15.43 retired `hardest-tasks`, `how-explorer`, `how-explainer`, `why-investigators`, `why-synthesizer`, `reflect-tooling`, `reflect-judgment`, and `architect-runners`. The page hides them, an existing overlay keeps their saved values, and `pstack_spawn` refuses them.
+
 ## Reasoning budget
 
-Upstream pstack sets one budget label (`unlimited`, `large`, `medium`, or `small`) for every role. DSH has no global budget. Set effort per route on the same page, from the efforts that route's model lists. An empty effort inherits the parent.
+Upstream pstack sets one budget label (`large`, `medium`, or `small`) for every role, and no role runs above `xhigh`. DSH has no global budget. Set effort per route on the same page, from the efforts that route's model lists. An empty effort inherits the parent.
 
 ## If they are not on Web
 

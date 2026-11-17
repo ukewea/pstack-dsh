@@ -33,6 +33,30 @@ export const PANEL_ROLES = [
 
 export const ALL_ROLES = [...SCALAR_ROLES, ...PANEL_ROLES] as const
 
+/**
+ * Roles upstream pstack dropped. They stay in ALL_ROLES so an existing overlay still parses and keeps
+ * its value on save, but Settings hides them, the catalog check skips them, and pstack_spawn refuses them.
+ */
+export const RETIRED_ROLES = {
+  'how-critics': '0.15',
+  'hardest-tasks': '0.15.43',
+  'how-explorer': '0.15.43',
+  'how-explainer': '0.15.43',
+  'why-investigators': '0.15.43',
+  'why-synthesizer': '0.15.43',
+  'reflect-tooling': '0.15.43',
+  'reflect-judgment': '0.15.43',
+  'architect-runners': '0.15.43',
+} as const satisfies Partial<Record<(typeof ALL_ROLES)[number], string>>
+
+export type RetiredRole = keyof typeof RETIRED_ROLES
+
+export function isRetiredRole(value: string): value is RetiredRole {
+  return Object.hasOwn(RETIRED_ROLES, value)
+}
+
+export const ACTIVE_ROLES = ALL_ROLES.filter(role => !isRetiredRole(role))
+
 export type ScalarRole = (typeof SCALAR_ROLES)[number]
 export type PanelRole = (typeof PANEL_ROLES)[number]
 export type PstackRole = (typeof ALL_ROLES)[number]

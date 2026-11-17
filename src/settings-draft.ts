@@ -1,4 +1,4 @@
-import { ALL_ROLES, isPanelRole, type PstackRole } from './roles.ts'
+import { ALL_ROLES, isPanelRole, isRetiredRole, type PstackRole } from './roles.ts'
 import type { LiveRoute } from './catalog-types.ts'
 import {
   emptyOverlay,
@@ -75,7 +75,7 @@ export function dropUnselectableRoles(overlay: Overlay, live: readonly LiveRoute
   const selectable = new Set(live.filter(route => route.selectable).map(route => routeKey(route.provider, route.model)))
   for (const role of ALL_ROLES) {
     const assignment = overlay.roles[role] ?? { inherit: true, routes: [] }
-    if (role === 'how-critics') {
+    if (isRetiredRole(role)) {
       next.roles[role] = { inherit: assignment.inherit, routes: assignment.routes.map(route => ({ ...route })) }
       continue
     }
@@ -101,7 +101,7 @@ export function dropUnselectableRoles(overlay: Overlay, live: readonly LiveRoute
 }
 
 export function applyInheritAll(drafts: RoleDraft[], choice: InheritChoice = 'inherit-parent'): RoleDraft[] {
-  return drafts.map(draft => draft.role === 'how-critics' ? draft : ({
+  return drafts.map(draft => isRetiredRole(draft.role) ? draft : ({
     ...draft,
     inherit: true,
     inheritChoice: choice,
@@ -112,7 +112,7 @@ export function applyInheritAll(drafts: RoleDraft[], choice: InheritChoice = 'in
 export function applyRouteToAll(drafts: RoleDraft[], route: OverlayRoute, live: readonly LiveRoute[]): RoleDraft[] {
   const cleaned = stripIllegalEffort(route, live)
   if (liveFor(live, cleaned.provider, cleaned.model) === undefined) return drafts
-  return drafts.map(draft => draft.role === 'how-critics' ? draft : ({
+  return drafts.map(draft => isRetiredRole(draft.role) ? draft : ({
     ...draft,
     inherit: false,
     inheritChoice: 'inherit-parent',

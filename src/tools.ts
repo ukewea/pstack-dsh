@@ -16,7 +16,7 @@ import { resolveDshHome } from './home.ts'
 import { loadPersona } from './persona.ts'
 import { presetForRole } from './presets.ts'
 import { assertSelectableRoute, resolveSpawn } from './spawn.ts'
-import { isPstackRole, normalizeRole } from './roles.ts'
+import { isPstackRole, isRetiredRole, normalizeRole, RETIRED_ROLES } from './roles.ts'
 import {
   SPAWN_PROVIDER,
   TOOL_CATALOG,
@@ -54,6 +54,11 @@ function textPrompt(prompt: string): ContentBlock[] {
  * Where a poteto-agent child finds poteto-mode. Upstream asks the parent to pass this path;
  * pstack_spawn supplies it so a child never searches for the skill.
  */
+/** Upstream 0.15.43: the first line of every spawned agent's kickoff points it at poteto-mode's worker.md. */
+export function workerKickoffLine(): string {
+  return `Read ${join(defaultSkillsRoot(), 'poteto-mode')}/worker.md before anything else.`
+}
+
 function potetoModeLocation(role: string): string | undefined {
   if (normalizeRole(role) === 'comment-sicko') return undefined
   return `poteto-mode: ${join(defaultSkillsRoot(), 'poteto-mode', 'SKILL.md')} (bundled pstack skills live beside it at ../<name>/SKILL.md).`
@@ -166,8 +171,8 @@ export function spawnTool(host: ToolHost): ToolDefinition {
       const subagents = host.subagents
       if (subagents === undefined) throw new Error('pstack_spawn requires ctx.subagents')
       const role = normalizeRole(String(args.role ?? ''))
-      if (role === 'how-critics') {
-        return { kind: 'disabled', role, reason: 'how-critics was retired in pstack 0.15; no agent was started.' }
+      if (isRetiredRole(role)) {
+        return { kind: 'disabled', role, reason: `${role} was retired in pstack ${RETIRED_ROLES[role]}; no agent was started.` }
       }
       if (!isPstackRole(role) && role.length === 0) throw new Error('pstack_spawn role is required')
       const overlay: Overlay = (await readOverlay(host.dshHome ?? resolveDshHome(host.env))).overlay
@@ -196,7 +201,7 @@ export function spawnTool(host: ToolHost): ToolDefinition {
       }
 
       const persona = await loadPersona(resolved.role)
-      const prompt = [persona, potetoModeLocation(resolved.role), resolved.prompt]
+      const prompt = [workerKickoffLine(), persona, potetoModeLocation(resolved.role), resolved.prompt]
         .filter((part): part is string => part !== undefined)
         .join('\n\n')
       const providerName = host.spawnProvider ?? SPAWN_PROVIDER

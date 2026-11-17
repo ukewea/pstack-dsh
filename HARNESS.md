@@ -1,6 +1,6 @@
 # DSH harness map
 
-This port carries pstack 0.15's 23 playbooks and 24 principles, with DSH call sites. Invocation flags match upstream: only `setup-pstack` is model-invocable, and poteto-mode reads every other skill by path. Subagents learn that path two ways: `pstack_spawn` puts it in the child's prompt, and pstack adds one line to every subagent's system context (depth above 0, top-level agents get none), so a child started by DSH's own `subagent` tool or Agent Teams can still read poteto-mode instead of asking the `skill` tool, which refuses manual-only skills. See [UPGRADE-0.15.md](./UPGRADE-0.15.md) for the pinned upstream source and excluded runtime changes.
+This port carries pstack 0.15's 22 playbooks and 24 principles, with DSH call sites. Invocation flags match upstream: only `setup-pstack` is model-invocable, and poteto-mode reads every other skill by path. Subagents learn that path two ways: `pstack_spawn` puts it in the child's prompt, and pstack adds one line to every subagent's system context (depth above 0, top-level agents get none), so a child started by DSH's own `subagent` tool or Agent Teams can still read poteto-mode instead of asking the `skill` tool, which refuses manual-only skills. See [UPGRADE-0.15.md](./UPGRADE-0.15.md) for the pinned upstream source and excluded runtime changes.
 
 Sources: official pstack (`cursor/plugins` `pstack/`) and official DeepSeek Harness (`deepseek-ai/deepseek-harness`). Tool names and fields below are from DSH source, not from Cursor `Task` and not from grok-build `task`.
 
@@ -26,6 +26,7 @@ Official model-facing `subagent` cannot take a pstack role. This plugin register
 | Spawn child | Model-facing official tool **`subagent`**: `description`, `prompt`, optional `cwd`. This plugin's **`pstack_spawn`**: those plus `role`, optional `route_index`, and optional `run_in_background`. Internally `ctx.subagents.startActivation` with `delivery: parent` unless `run_in_background` is false. | `packages/subagent/tool-subagent/src/index.ts` on DSH 0.2.2-rc.1 |
 | Per-child model | `AgentOptions` `{ provider?, model?, maxTokens? }` on `SubagentStartRequest.agentOptions`. Not a model-facing `subagent` field. "Another model requires another named tool instance" unless a plugin sets `agentOptions` at start. Overlay maps a logged-in route onto that object. Omit it to inherit the parent. | `packages/core/agent/src/runtime-types.ts` `AgentOptions`; `packages/subagent/subagent/src/types.ts` `SubagentStartRequest.agentOptions`; `packages/subagent/tool-subagent/README.md` Config `agentOptions` |
 | Per-role reasoning effort | **Not on `subagent`.** Overlay effort is `AgentOptions.reasoningEffort` on the child start request, checked against `resolveModelInfo().reasoning.efforts` before start. Empty or omitted effort inherits the parent. Never copy grok `xhigh/high/medium/low` or Cursor `max` unless that exact id is on **this** route. Do not change provider, model, or effort from `agent/request`. | `packages/core/agent/src/runtime-types.ts` `AgentOptions.reasoningEffort`; `packages/subagent/subagent/src/types.ts` `SubagentStartRequest.agentOptions`; `packages/core/agent-loop/src/agent.ts` rejects `agent/request` route changes |
+| Worker rules (`worker.md`) | `pstack_spawn` puts `Read <skills>/poteto-mode/worker.md before anything else.` on the first line of every child prompt, every role included. With the official `subagent` tool the parent writes that line itself. The system-context hint is unchanged: it names the skills root, not worker.md, because it reaches every DSH subagent, pstack or not. | upstream 0.15.43 `skills/poteto-mode/worker.md`; `src/tools.ts` `workerKickoffLine` |
 | Wait | `run_in_background` omitted or true: one parent settlement notice. `false`: this call returns the result and does not also notify the parent. No `job_output`. | `ctx.subagents.startActivation` `delivery` |
 | Cancel | `interrupt_agent` stops the current turn. No `job_kill`. | `docs/tool-catalog.md` `#deepseek-aidsh-tool-subagent-control` |
 | Isolation / worktree / Cursor cloud | **No field** on `subagent`. Spawn-in-process inherits parent cwd. Drop `environment: "cloud"`. Parent may `git worktree add` and put the path in the prompt. | `packages/subagent/subagent-spawn-in-process/README.md` |
@@ -64,7 +65,7 @@ Parent session only:
 pstack_spawn
   description: <3-5 words>
   prompt: <full brief, file pointers not inlined dumps>
-  role: <pstack role key, e.g. feature | how-explainer | independent-verifier | poteto-agent | comment-sicko>
+  role: <pstack role key, e.g. feature | judgment-and-prose | independent-verifier | poteto-agent | comment-sicko>
   run_in_background: true
   route_index: <only for panel roles when overlay has more than one route; default 0>
 ```

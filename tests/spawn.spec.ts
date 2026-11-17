@@ -4,10 +4,10 @@ import { MessageId } from '@deepseek-ai/dsh-llm'
 import { SessionId } from '@deepseek-ai/dsh-session'
 import type { Agent } from '@deepseek-ai/dsh-agent'
 import { emptyOverlay, parseOverlay } from '../src/overlay.ts'
-import { spawnTool, type SpawnSubagents } from '../src/tools.ts'
-import { normalizeRole } from '../src/roles.ts'
+import { spawnTool, workerKickoffLine, type SpawnSubagents } from '../src/tools.ts'
+import { normalizeRole, RETIRED_ROLES } from '../src/roles.ts'
 import { resolveSpawn } from '../src/spawn.ts'
-import { mkdtemp } from 'node:fs/promises'
+import { access, mkdtemp } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
@@ -158,4 +158,63 @@ describe('activation spec shape', () => {
     }
     assert.equal(spec.delivery, 'parent')
   })
+})
+
+describe('roles retired in pstack 0.15.43', () => {
+  for (const role of Object.keys(RETIRED_ROLES).filter(key => key !== 'how-critics')) {
+    it(`refuses ${role} without starting an agent`, async () => {
+      let starts = 0
+      const subagents: SpawnSubagents = {
+        async startActivation() {
+          starts += 1
+          throw new Error('unexpected start')
+        },
+        getProvider() { return undefined },
+        resolveMaxDepth() { return undefined },
+      }
+      const result = await spawnTool({ subagents }).execute({
+        role,
+        description: 'Legacy role request',
+        prompt: 'Explain this module',
+      }, { agent: { id: SessionId('parent') } as unknown as Agent })
+      assert.deepEqual(result, { kind: 'disabled', role, reason: `${role} was retired in pstack 0.15.43; no agent was started.` })
+      assert.equal(starts, 0)
+    })
+  }
+})
+
+describe('worker.md kickoff line', () => {
+  // Upstream 0.15.43: the first line of every spawned agent's kickoff names poteto-mode's worker.md.
+  for (const role of ['feature', 'comment-sicko']) {
+    it(`opens the ${role} child prompt with a readable worker.md path`, async () => {
+      const prompts: string[] = []
+      const subagents: SpawnSubagents = {
+        async startActivation(spec) {
+          prompts.push(JSON.stringify((spec as unknown as { prompt: unknown }).prompt))
+          return {
+            childId: SessionId('child-worker'),
+            messageId: MessageId('message-worker'),
+            result: Promise.resolve({ output: [], stopReason: 'completed' }),
+            async dispose() {},
+          }
+        },
+        getProvider() {
+          return { name: 'spawn', capabilities: { agentPreset: true, agentOptions: true, outputSchema: false, depthLimit: true }, inheritsParentContext: false }
+        },
+        resolveMaxDepth() { return 2 },
+      }
+      const home = await mkdtemp(join(tmpdir(), 'pstack-worker-'))
+      await spawnTool({ subagents, dshHome: home, env: { DSH_HOME: home } }).execute({
+        role,
+        description: 'worker line',
+        prompt: 'do the task',
+      }, { agent: { id: SessionId('parent-worker') } as unknown as Agent, signal: new AbortController().signal })
+      const line = workerKickoffLine()
+      const text = JSON.parse(prompts[0]!) as unknown
+      const first = JSON.stringify(text).match(/"text":"((?:[^"\\]|\\.)*)"/)?.[1]
+      assert.ok(first?.startsWith(JSON.stringify(line).slice(1, -1)), `prompt starts with ${first?.slice(0, 120)}`)
+      const path = line.slice('Read '.length, -' before anything else.'.length)
+      await access(path)
+    })
+  }
 })

@@ -91,7 +91,9 @@ describe('bundled skills through the official filesystem provider', () => {
       const how = await skills.get('how')
       assert.equal(how?.invocation.modelInvocable, false)
       assert.equal(how?.invocation.userInvocable, true)
-      assert.match(how?.content ?? '', /role: how-explorer/)
+      // Upstream 0.15.43 runs one read-only explainer; the retired how-* roles must not come back.
+      assert.match(how?.content ?? '', /pstack_spawn/)
+      assert.doesNotMatch(how?.content ?? '', /how-explorer|how-explainer/)
       const setup = await skills.get('setup-pstack')
       assert.equal(setup?.invocation.modelInvocable, true)
       assert.equal(setup?.invocation.userInvocable, true)

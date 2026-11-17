@@ -4,34 +4,34 @@ import { en, zh } from '../src/client/locales.ts'
 import { POTETO_DEFAULT_SLUGS, potetoNoteCopy } from '../src/client/poteto-defaults.ts'
 import { ALL_ROLES, type PstackRole } from '../src/roles.ts'
 
-// pstack 0.15.36 (de8ee15) skills/setup-pstack/SKILL.md step 5.
-const GROK = 'grok-4.7-xhigh-fast'
-const OPUS = 'claude-opus-5-5-xhigh'
-const PANEL = 'claude-opus-5-5-xhigh, grok-4.7-xhigh-fast'
+// pstack 0.15.43 (2f87c85) skills/setup-pstack/SKILL.md step 5. Retired roles have no recommendation.
+const OPUS = 'claude-opus-5-5-xhigh-fast'
+const OPUS_HIGH = 'claude-opus-5-5-high-fast'
+const PANEL = 'claude-fable-5-2-high, claude-opus-5-5-high-fast, gemini-4-carbon-high'
 
 const EXPECTED: Record<PstackRole, string> = {
-  feature: GROK,
-  refactoring: GROK,
-  'how-explorer': GROK,
-  'why-investigators': GROK,
-  'swarm-workers': GROK,
-  'bug-fix': GROK,
-  'perf-issue': GROK,
-  hillclimb: GROK,
-  'reflect-tooling': GROK,
+  feature: OPUS,
+  refactoring: OPUS,
+  'bug-fix': OPUS,
+  'perf-issue': OPUS,
+  hillclimb: OPUS,
   'judgment-and-prose': OPUS,
-  'hardest-tasks': OPUS,
-  'how-explainer': OPUS,
-  'why-synthesizer': OPUS,
-  'reflect-judgment': OPUS,
-  'how-critics': '',
+  'swarm-workers': OPUS_HIGH,
   'arena-runners': PANEL,
-  'arena-cross-judge-pool': PANEL,
-  'architect-runners': PANEL,
+  'arena-cross-judge-pool': 'claude-opus-5-5-high-fast, gemini-4-carbon-high',
   'interrogate-reviewers': PANEL,
   'independent-verifier': '',
   'poteto-agent': '',
   'comment-sicko': '',
+  'hardest-tasks': '',
+  'how-explorer': '',
+  'how-explainer': '',
+  'why-investigators': '',
+  'why-synthesizer': '',
+  'reflect-tooling': '',
+  'reflect-judgment': '',
+  'how-critics': '',
+  'architect-runners': '',
 }
 
 describe('Poteto Settings notes', () => {
@@ -47,10 +47,10 @@ describe('Poteto Settings notes', () => {
     assert.equal(zh.potetoPrefix, 'Poteto 0.15 推荐：')
     assert.ok(!('inheritHint' in en))
     assert.ok(!('panelHint' in en))
-    assert.equal(potetoNoteCopy('feature', en.potetoPrefix), `Poteto 0.15 recommendation: ${GROK}`)
-    assert.equal(potetoNoteCopy('feature', zh.potetoPrefix), `Poteto 0.15 推荐：${GROK}`)
-    assert.equal(potetoNoteCopy('bug-fix', en.potetoPrefix), `Poteto 0.15 recommendation: ${GROK}`)
-    assert.equal(potetoNoteCopy('hardest-tasks', en.potetoPrefix), `Poteto 0.15 recommendation: ${OPUS}`)
+    assert.equal(potetoNoteCopy('feature', en.potetoPrefix), `Poteto 0.15 recommendation: ${OPUS}`)
+    assert.equal(potetoNoteCopy('feature', zh.potetoPrefix), `Poteto 0.15 推荐：${OPUS}`)
+    assert.equal(potetoNoteCopy('swarm-workers', en.potetoPrefix), `Poteto 0.15 recommendation: ${OPUS_HIGH}`)
+    assert.equal(potetoNoteCopy('hardest-tasks', en.potetoPrefix), '')
     assert.equal(potetoNoteCopy('arena-runners', zh.potetoPrefix), `Poteto 0.15 推荐：${PANEL}`)
     assert.equal(potetoNoteCopy('how-critics', en.potetoPrefix), '')
     assert.equal(potetoNoteCopy('how-critics', zh.potetoPrefix), '')

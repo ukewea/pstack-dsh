@@ -58,7 +58,8 @@ describe('upstream invocation policy', () => {
         ...[...mode.content.matchAll(/\*\*([a-z0-9]+(?:-[a-z0-9]+)*)\*\* skill/g)].map(match => match[1]),
         ...mode.content.match(/principle-[a-z0-9]+(?:-[a-z0-9]+)*/g) ?? [],
       ])
-      assert.ok(named.has('how') && named.has('principle-model-the-domain'), [...named].join(', '))
+      // Upstream 0.15.43 names few skills directly; these two prove both patterns still match.
+      assert.ok(named.has('figure-it-out') && named.has('principle-sequence-verifiable-units'), [...named].join(', '))
       for (const name of named) {
         const text = await readFile(resolve(base, '..', name, 'SKILL.md'), 'utf8').catch(() => '')
         assert.match(text, new RegExp(`^---\\nname: ${name}\\n`), `${name} is readable beside poteto-mode`)

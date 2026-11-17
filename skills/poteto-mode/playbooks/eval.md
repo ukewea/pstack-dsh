@@ -17,7 +17,7 @@ Steps:
 1. Frame the comparison. State what variant is under test and what behavior counts as success. Write three to six concrete rubric criteria for the judge only. Hold them back from candidates.
 2. Set up sanitized environments. Use a working directory per candidate with the variant in place. Plant context an organic task would have, such as a project skeleton and the skills the candidate would naturally read.
 3. Author one organic prompt. What a user would type. No leakage of what's being measured.
-4. Spawn N parallel candidates on different models per the **arena** skill's Phase B. Each works in its own sanitized dir. Same prompt to each.
+4. Spawn N parallel candidates on different models per the **arena** skill's Phase B. Each works in its own sanitized dir. Same prompt to each. An agent that only dispatches, polls, or packs results uses `role: swarm-workers`.
 5. Spawn one blinded judge on a different model family per the **arena** skill's Phase C. Judge sees outputs by sanitized label and the rubric, never a model name.
 6. Verify the chain from transcripts, not self-report. Read candidate transcripts only at workspace-scoped paths supplied by the runtime or task. Do not assume an `agent-transcripts/` directory exists. Do not glob other users' `$DSH_HOME` or Cursor project dirs. Look at which files each candidate actually opened. Grade chain-following from those reads plus the shape of the code. If transcripts are unavailable, report that limit rather than infer reads from claims.
 7. Read every candidate output yourself end to end. Compare to the judge's verdict. Disagreement means a model is biased or the rubric is ambiguous. Synthesize.

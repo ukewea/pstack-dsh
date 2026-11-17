@@ -56,7 +56,7 @@ In context, that's enough. [`/tdd`](../../skills/tdd/SKILL.md) writes the smalle
 
 ## Clean before you commit
 
-The [Opening a PR playbook](../../skills/poteto-mode/playbooks/opening-a-pr.md) runs `/unslop` on the diff before each commit and applies [`/unslop`](../../skills/unslop/SKILL.md) to the PR description and commit bodies. `/unslop` ships in this plugin. If a pass still leaves narrating comments, unsupported guards, dead compatibility paths, or unrelated edits, name them and cut them.
+The [Opening a PR playbook](../../skills/poteto-mode/playbooks/opening-a-pr.md) runs `/unslop` on the diff before each commit, and poteto-mode applies [`/unslop`](../../skills/unslop/SKILL.md) to the PR description and commit bodies. `/unslop` ships in this plugin. If a pass still leaves narrating comments, unsupported guards, dead compatibility paths, or unrelated edits, name them and cut them.
 
 For prose, `/unslop` takes a target and any extra rules you have:
 
@@ -78,6 +78,6 @@ Comments need their own pass, and not from the agent that wrote them. An author 
 
 The division of labor is worth keeping straight. `/unslop` cleans slop out of the code, `/unslop` cleans it out of prose, and `/no-comments` hands the comments to a reviewer who didn't write them.
 
-**Pitfall:** cleanup is not optional polish. A diff with narrating comments and defensive dead weight reads as unfinished to reviewers, and the extra code is where the next bug hides. If the diff feels padded, say `deslop it` before you commit, not after review calls it out.
+**Pitfall:** cleanup is not optional polish. A diff with narrating comments and defensive dead weight reads as unfinished to reviewers, and the extra code is where the next bug hides. If the diff feels padded, run `/unslop` before you commit, not after review calls it out.
 
 Next: [Verify and ship](./06-verify-and-ship.md).

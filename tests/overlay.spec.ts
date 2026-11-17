@@ -102,13 +102,26 @@ describe('overlay', () => {
     const noEffort = parseOverlay(JSON.stringify({
       version: 1,
       roles: {
-        'why-synthesizer': {
+        'judgment-and-prose': {
           inherit: false,
           routes: [{ provider: 'pi-anthropic', model: 'claude-sonnet-4-6', reasoningEffort: 'xhigh' }],
         },
       },
     }))
     assert.match(validateOverlayAgainstCatalog(noEffort, live).join('\n'), /has no effort field/)
+
+    // A role retired upstream keeps its saved value but is no longer checked.
+    const retired = parseOverlay(JSON.stringify({
+      version: 1,
+      roles: {
+        'why-synthesizer': {
+          inherit: false,
+          routes: [{ provider: 'pi-anthropic', model: 'claude-sonnet-4-6', reasoningEffort: 'xhigh' }],
+        },
+      },
+    }))
+    assert.deepEqual(validateOverlayAgainstCatalog(retired, live), [])
+    assert.equal(retired.roles['why-synthesizer']?.inherit, false)
 
     const wrongEffort = parseOverlay(JSON.stringify({
       version: 1,

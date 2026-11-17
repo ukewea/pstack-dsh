@@ -21,9 +21,11 @@ Forbidden on this call: `model`, `provider`, `reasoning_effort`, `thinking`, `is
 
 Route and effort come from `$DSH_HOME/pstack-dsh.json` when Settings → pstack mapped that role to a live logged-in route. Missing overlay, `inherit: true`, or empty `routes`: inherit this conversation. Usable without setup.
 
+`pstack_spawn` puts `Read <path>/worker.md before anything else.` as the first line of every child's prompt, with the path to poteto-mode's `worker.md`. Do not write that line yourself on this call.
+
 ## Fallback
 
-If `pstack_spawn` is not registered, call official `subagent` with `description`, `prompt`, and optional `cwd`. That schema has no `run_in_background`. The call returns a child id and the runtime notifies the parent once. You lose per-role overlay.
+If `pstack_spawn` is not registered, call official `subagent` with `description`, `prompt`, and optional `cwd`. That schema has no `run_in_background`. The call returns a child id and the runtime notifies the parent once. You lose per-role overlay. Write `Read <path>/worker.md before anything else.` as the first line of the prompt yourself, with the path to poteto-mode's `worker.md`.
 
 ## Wait and cancel
 
@@ -40,21 +42,17 @@ Do not poll `list_agents` for completion. A later turn for that same child uses 
 | Role key | Used by |
 |---|---|
 | `feature` `refactoring` `bug-fix` `perf-issue` `hillclimb` | playbook code delegates |
-| `judgment-and-prose` `hardest-tasks` | hardest / judgment code |
-| `how-explorer` `how-explainer` | `/how` |
-| `why-investigators` `why-synthesizer` | `/why` |
-| `reflect-tooling` `reflect-judgment` | `/reflect` |
+| `judgment-and-prose` | hardest / judgment code |
 | `swarm-workers` | `/swarm` |
 | `arena-runners` `arena-cross-judge-pool` | `/arena` |
-| `architect-runners` | `/architect` via arena |
 | `interrogate-reviewers` | `/interrogate` |
 | `independent-verifier` | second opinion; does not write the diff |
-| `poteto-agent` | ad-hoc playbook helpers |
+| `poteto-agent` | ad-hoc playbook helpers, `/how` explainer |
 | `comment-sicko` | `/no-comments` |
 
 `generalPurpose` and `Comment Sicko` normalize to `poteto-agent` and `comment-sicko`.
 
-Panel roles (`arena-runners`, `arena-cross-judge-pool`, `architect-runners`, `interrogate-reviewers`): call `pstack_overlay_read`. If the role inherits, spawn N independent children all inheriting (same route, separate reads). If the role has routes, one `pstack_spawn` per route with `route_index` 0..n-1. Do not invent slugs to fake a panel.
+Panel roles (`arena-runners`, `arena-cross-judge-pool`, `interrogate-reviewers`): call `pstack_overlay_read`. If the role inherits, spawn N independent children all inheriting (same route, separate reads). If the role has routes, one `pstack_spawn` per route with `route_index` 0..n-1. Do not invent slugs to fake a panel.
 
 ## Todo and questions
 

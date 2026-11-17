@@ -17,7 +17,7 @@ import {
   stripIllegalEffort,
   type RoleDraft,
 } from '../settings-draft.ts'
-import { PANEL_ROLES, type PstackRole } from '../roles.ts'
+import { isRetiredRole, PANEL_ROLES, type PstackRole } from '../roles.ts'
 import { loadSettingsSnapshot, saveSettingsOverlay } from './api.ts'
 import type { PstackSettingsKey } from './locales.ts'
 import { potetoNoteCopy } from './poteto-defaults.ts'
@@ -32,10 +32,10 @@ export interface PstackSettingsInjected {
 export type PstackSettingsProps = Partial<PstackSettingsInjected>
 
 const GROUPS: { id: 'groupPlaybooks' | 'groupSkills' | 'groupVerify' | 'groupPanels'; roles: readonly PstackRole[] }[] = [
-  { id: 'groupPlaybooks', roles: ['feature', 'refactoring', 'bug-fix', 'perf-issue', 'hillclimb', 'judgment-and-prose', 'hardest-tasks'] },
-  { id: 'groupSkills', roles: ['how-explorer', 'how-explainer', 'why-investigators', 'why-synthesizer', 'reflect-tooling', 'reflect-judgment', 'swarm-workers'] },
+  { id: 'groupPlaybooks', roles: ['feature', 'refactoring', 'bug-fix', 'perf-issue', 'hillclimb', 'judgment-and-prose'] },
+  { id: 'groupSkills', roles: ['swarm-workers'] },
   { id: 'groupVerify', roles: ['independent-verifier', 'poteto-agent', 'comment-sicko'] },
-  { id: 'groupPanels', roles: PANEL_ROLES.filter(role => role !== 'how-critics') },
+  { id: 'groupPanels', roles: PANEL_ROLES.filter(role => !isRetiredRole(role)) },
 ]
 
 const SETTINGS_CSS = `

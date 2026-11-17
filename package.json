@@ -46,8 +46,8 @@
   "homepage": "https://github.com/ukewea/pstack-dsh",
   "pstack": {
     "upstream": "cursor/plugins pstack/",
-    "upstreamVersion": "0.15.36",
-    "upstreamCommit": "de8ee15dd1194627d21eb5fcd41cb1873208dabb"
+    "upstreamVersion": "0.15.43",
+    "upstreamCommit": "2f87c854fe3e2fcda44ca86b46ede35aad3c46b7"
   },
   "keywords": [
     "deepseek-harness",

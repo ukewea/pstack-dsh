@@ -20,6 +20,8 @@ The page lists only logged-in DSH routes. Save writes `$DSH_HOME/pstack-dsh.json
 
 Each mapped route can also carry a reasoning effort, picked from the efforts that route lists. There is no single reasoning budget for all roles. Raise or lower the effort route by route.
 
+Upstream pstack recommends Opus 5.5 at `xhigh` for code, prose, and judgment, and `high` for the review panels and swarm workers. No role runs above `xhigh`. Outside a review panel, Fable 5.2 runs only when you name it for a task or after two Opus 5.5 runs of the same brief fail their check. The Settings page shows that recommendation next to each role as a note only. It never fills in a route or an effort for you.
+
 You only override what you care about. A role left as `inherit-parent` keeps the parent route. `auto` means the same inherit. For a panel role the value is a list, and one subagent runs per entry. Setup also configures `swarm-workers`, the default route for every `/swarm` worker unless a race names a selectable catalog route for each arm.
 
 [`/setup-pstack`](../../skills/setup-pstack/SKILL.md) is a pointer to that page. It is not a TUI editor.
@@ -53,7 +55,7 @@ Pick something real but small, and describe it the way you'd describe it to a co
 /poteto-mode add a --json flag to this command. text output stays byte-identical. verify both.
 ```
 
-Watch the todo list. Its first items are the matched playbook's steps copied in, the Feature playbook for this prompt. If `/poteto-mode` skips a step, the step stays in the list with `skip: <reason>`, so you can see what it chose not to do.
+Watch the todo list. Its first items are the matched playbook's steps copied in, the Feature playbook for this prompt.
 
 From here you can type normal follow-ups. `/poteto-mode` attaches the skill to the message you typed it in. DSH has no Cursor Custom Mode that keeps a skill in context on every turn, so it can fade as the chat grows or after compaction. Type `/poteto-mode` again on a later message that needs it.
 

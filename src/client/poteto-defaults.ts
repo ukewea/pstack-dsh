@@ -1,33 +1,35 @@
 import type { PstackRole } from '../roles.ts'
 
-// Upstream 0.15.36 (setup-pstack step 5) recommendations are display copy, never runtime route defaults.
-const GROK = 'grok-4.7-xhigh-fast'
-const OPUS = 'claude-opus-5-5-xhigh'
-const PANEL = `${OPUS}, ${GROK}`
+// Upstream 0.15.43 (setup-pstack step 5) recommendations are display copy, never runtime route defaults.
+const OPUS = 'claude-opus-5-5-xhigh-fast'
+const OPUS_HIGH = 'claude-opus-5-5-high-fast'
+const GEMINI = 'gemini-4-carbon-high'
+const PANEL = `claude-fable-5-2-high, ${OPUS_HIGH}, ${GEMINI}`
 
 export const POTETO_DEFAULT_SLUGS = {
-  feature: GROK,
-  refactoring: GROK,
-  'bug-fix': GROK,
-  'perf-issue': GROK,
-  hillclimb: GROK,
+  feature: OPUS,
+  refactoring: OPUS,
+  'bug-fix': OPUS,
+  'perf-issue': OPUS,
+  hillclimb: OPUS,
   'judgment-and-prose': OPUS,
-  'hardest-tasks': OPUS,
-  'how-explorer': GROK,
-  'how-explainer': OPUS,
-  'why-investigators': GROK,
-  'why-synthesizer': OPUS,
-  'reflect-tooling': GROK,
-  'reflect-judgment': OPUS,
-  'swarm-workers': GROK,
+  'swarm-workers': OPUS_HIGH,
   'independent-verifier': '',
   'poteto-agent': '',
   'comment-sicko': '',
-  'how-critics': '',
   'arena-runners': PANEL,
-  'arena-cross-judge-pool': PANEL,
-  'architect-runners': PANEL,
+  'arena-cross-judge-pool': `${OPUS_HIGH}, ${GEMINI}`,
   'interrogate-reviewers': PANEL,
+  // Retired upstream: no recommendation.
+  'hardest-tasks': '',
+  'how-explorer': '',
+  'how-explainer': '',
+  'why-investigators': '',
+  'why-synthesizer': '',
+  'reflect-tooling': '',
+  'reflect-judgment': '',
+  'how-critics': '',
+  'architect-runners': '',
 } as const satisfies Record<PstackRole, string>
 
 export function potetoNoteCopy(role: PstackRole, prefix: string): string {

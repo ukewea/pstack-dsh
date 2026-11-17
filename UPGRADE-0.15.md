@@ -1,5 +1,7 @@
 # pstack 0.15 text port
 
+> Synced to upstream pstack 0.15.43 (`2f87c85`, 2026-11-17) from 0.15.36 (`de8ee15`): upstream PRs #1236 and #1249. Shorter skill and playbook texts; `why`, `how`, `reflect` and `architect` are single files; `playbooks/orchestrate.md` and `scripts/check-plan.*` are gone; new `skills/poteto-mode/worker.md`, whose path `pstack_spawn` puts on the first line of every child prompt. Upstream retired the `hardest-tasks`, `how-explorer`, `how-explainer`, `why-investigators`, `why-synthesizer`, `reflect-tooling`, `reflect-judgment` and `architect-runners` roles: an overlay that maps them still parses and keeps the value, Settings hides them, and `pstack_spawn` refuses them like `how-critics`. Settings shows upstream's new recommendations (Opus 5.5 `-fast`, Fable/Opus/Gemini panels) as display copy only.
+
 > Superseded for invocation (2026-11-12): the DSH port now follows upstream pstack 0.15.36 (`de8ee15`). Only `setup-pstack` is model-invocable; every other skill keeps `disable-model-invocation: true`, and poteto-mode reads bundled skills by path (`../<name>/SKILL.md` from its base directory). The "Model invocation for all `principle-*` skills" line and the "Cursor-only invocation restrictions" exclusion below describe the earlier 0.15.0 port.
 
 ## Provenance
