@@ -78,6 +78,7 @@ const RULES: readonly Rule[] = [
       'skills/poteto-mode/scripts/watch-pr/github.ts': 'read-only git and gh calls for babysit',
       'skills/poteto-mode/scripts/watch-pr/github.test.ts': 'runs the CLI against a fake gh',
       'skills/statechart/scripts/run.ts': 'runs TLC (java) and mise',
+      'skills/statechart/scripts/kill.ts': 'kills the TLC process tree (taskkill on Windows)',
       'skills/statechart/scripts/statechart.ts': 'runs the statechart worker',
     },
   },

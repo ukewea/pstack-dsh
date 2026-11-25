@@ -4,10 +4,10 @@ import { en, zh } from '../src/client/locales.ts'
 import { POTETO_DEFAULT_SLUGS, potetoNoteCopy } from '../src/client/poteto-defaults.ts'
 import { ALL_ROLES, type PstackRole } from '../src/roles.ts'
 
-// pstack 0.15.43 (2f87c85) skills/setup-pstack/SKILL.md step 5. Retired roles have no recommendation.
+// pstack 0.15.48 (9e278fe) skills/setup-pstack/SKILL.md step 5. Retired roles have no recommendation.
 const OPUS = 'claude-opus-5-5-xhigh-fast'
 const OPUS_HIGH = 'claude-opus-5-5-high-fast'
-const PANEL = 'claude-fable-5-2-high, claude-opus-5-5-high-fast, gemini-4-carbon-high'
+const PANEL = 'claude-fable-5-2-high, claude-opus-5-5-high-fast, gemini-4-neon-xhigh'
 
 const EXPECTED: Record<PstackRole, string> = {
   feature: OPUS,
@@ -18,7 +18,7 @@ const EXPECTED: Record<PstackRole, string> = {
   'judgment-and-prose': OPUS,
   'swarm-workers': OPUS_HIGH,
   'arena-runners': PANEL,
-  'arena-cross-judge-pool': 'claude-opus-5-5-high-fast, gemini-4-carbon-high',
+  'arena-cross-judge-pool': 'claude-opus-5-5-high-fast, gemini-4-neon-xhigh',
   'interrogate-reviewers': PANEL,
   'independent-verifier': '',
   'poteto-agent': '',

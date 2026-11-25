@@ -1,9 +1,9 @@
 import type { PstackRole } from '../roles.ts'
 
-// Upstream 0.15.43 (setup-pstack step 5) recommendations are display copy, never runtime route defaults.
+// Upstream 0.15.48 (setup-pstack step 5) recommendations are display copy, never runtime route defaults.
 const OPUS = 'claude-opus-5-5-xhigh-fast'
 const OPUS_HIGH = 'claude-opus-5-5-high-fast'
-const GEMINI = 'gemini-4-carbon-high'
+const GEMINI = 'gemini-4-neon-xhigh'
 const PANEL = `claude-fable-5-2-high, ${OPUS_HIGH}, ${GEMINI}`
 
 export const POTETO_DEFAULT_SLUGS = {

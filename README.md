@@ -9,7 +9,7 @@
 Open **Settings → Plugins → Add plugin** and enter this in “Package name or address”:
 
 ```text
-github:ukewea/pstack-dsh#v0.3.4
+github:ukewea/pstack-dsh#v0.3.5
 ```
 
 桌面端插件管理器负责 Desktop profile 和内置包管理器。本发布已包含编译好的 `lib/`；普通使用不需要 clone 或本地构建。若应用提示刷新或重新打开，请按提示完成。
@@ -19,7 +19,7 @@ The desktop plugin manager owns the Desktop profile and bundled package manager.
 ### Web CLI
 
 ```sh
-dsh plugin --profile web add github:ukewea/pstack-dsh#v0.3.4
+dsh plugin --profile web add github:ukewea/pstack-dsh#v0.3.5
 ```
 
 这条官方 CLI 命令只写入 `web` profile，不能修改 Desktop App 的 profile。对于已运行的 Web Host，请重新打开该 Host 一次，再刷新网页。
@@ -177,6 +177,7 @@ Every agent `/poteto-mode` starts reads [`worker.md`](./skills/poteto-mode/worke
 | [`/poteto-mode`](./skills/poteto-mode/SKILL.md) | default entry point for any non-trivial task. |
 | [`/in-your-own-words`](./skills/in-your-own-words/SKILL.md) | you want the agent to play back your goal and the problem before it starts. runs only when you type `/in-your-own-words`. |
 | [`/sharpen`](./skills/sharpen/SKILL.md) | you want a prompt made deeper, not bigger, before you send it: what a top professional would do that you didn't ask for, the raw material they'd start from, their methods and tools, and an outside check that the result is right. hands back the rewritten prompt, which asks the agent to prototype any choice an experiment can settle and leaves product and preference choices to you. doesn't do the task. runs only when you type `/sharpen`. |
+| [`/reframe`](./skills/reframe/SKILL.md) | you can't name what you're building, so you can't ask an agent for it clearly. starts from your files and your own words. if they could describe more than one problem, it lists the two or three it could be, with the sign that tells each apart, and picks the likeliest. then it gives 8 to 12 expert terms ranked by how much they'd change what you build, each tied to the part of your description it names and to a real project whose link it checked. borrows terms from 2 or 3 neighboring fields that solved the same problem under other names, says where each analogy breaks, then rewrites your description with the new words. runs only when you type `/reframe`. |
 | [`/how`](./skills/how/SKILL.md) | you want a walkthrough of how a subsystem works. |
 | [`/why`](./skills/why/SKILL.md) | you want to know why something was built this way. answers from the record, not the code: the commits and pr discussions that introduced it and each later change, and other sources when that trail is thin. cites what the authors wrote, marks its own inferences, and says what the record does not answer. |
 | [`/recall`](./skills/recall/SKILL.md) | you're starting or resuming work and want your recent context on a topic rebuilt from your own chat history and the shared record, handed back as a tight current-state brief. |
@@ -248,9 +249,9 @@ Twenty-four short skills, one principle each. `poteto-mode` indexes them inline 
 
 ## 上游 0.15 同步 / Upstream sync
 
-技能内容同步至 `cursor/plugins` 的 pstack 0.15.43，提交 `2f87c854fe3e2fcda44ca86b46ede35aad3c46b7`。保留 DSH 工具和角色路由。未包含 Cursor 专用的 make-bot-ui、poteto-help 和 automations，也未包含 ketchup-video（DSH 没有视频渲染，网页对话不能播放 mp4）。
+技能内容同步至 `cursor/plugins` 的 pstack 0.15.48，提交 `9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc`。保留 DSH 工具和角色路由。未包含 Cursor 专用的 make-bot-ui、poteto-help 和 automations，也未包含 ketchup-video（DSH 没有视频渲染，网页对话不能播放 mp4）。
 
-Skill content is synced to pstack 0.15.43 from `cursor/plugins` (commit `2f87c854fe3e2fcda44ca86b46ede35aad3c46b7`), keeping DSH tools and role routing. Not included: Cursor-only make-bot-ui, poteto-help and automations, and ketchup-video (DSH has no video renderer and its web chat cannot play mp4).
+Skill content is synced to pstack 0.15.48 from `cursor/plugins` (commit `9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc`), keeping DSH tools and role routing. Not included: Cursor-only make-bot-ui, poteto-help and automations, and ketchup-video (DSH has no video renderer and its web chat cannot play mp4).
 
 设置页的「Poteto 0.15 推荐」仅供参考，不会替换用户已保存的模型或 effort。`how-critics` 不再显示或启动代理，旧配置仍可读写并保留。不包含 Cursor 专用的 make-bot-ui。
 
@@ -270,9 +271,9 @@ Do not send `model` unless that pair was detected live. Missing overlay inherits
 
 Effort is only the ids that route actually accepts. If the route has none, omit it. Skills never send `reasoning_effort` or `thinking` on spawn. Official `subagent` has no such field. Role effort lives in the overlay and is placed on the child `agentOptions.reasoningEffort` before the first request. `agent/request` does not change the route.
 
-**上游推荐 / Upstream recommendation.** 上游 pstack 现在把代码角色（feature、refactoring、bug fix、perf、hillclimb）、文字和判断都交给 Opus 5.5 `xhigh`，任何角色都不超过 `xhigh`。评审面板以外，只有你点名，或同一份 brief 的两次 Opus 5.5 运行都失败后，才用 Fable 5.2。默认面板是 Fable 5.2 / Opus 5.5 / Gemini 4 Carbon。这些只是参考，本移植不会据此替你选路由或 effort。
+**上游推荐 / Upstream recommendation.** 上游 pstack 现在把代码角色（feature、refactoring、bug fix、perf、hillclimb）、文字和判断都交给 Opus 5.5 `xhigh`，任何角色都不超过 `xhigh`。评审面板以外，只有你点名，或同一份 brief 的两次 Opus 5.5 运行都失败后，才用 Fable 5.2。默认面板是 Fable 5.2 / Opus 5.5 / Gemini 4 Neon `xhigh`。这些只是参考，本移植不会据此替你选路由或 effort。
 
-Upstream pstack now sends code delegates (feature, refactoring, bug fix, perf, hillclimb), prose, and judgment to Opus 5.5 at `xhigh`, and no role runs above `xhigh`. Outside a review panel, Fable 5.2 runs only when you name it or after two Opus 5.5 runs of the same brief fail. The default panel is Fable 5.2 / Opus 5.5 / Gemini 4 Carbon. These are reference only. This port never picks a route or effort from them.
+Upstream pstack now sends code delegates (feature, refactoring, bug fix, perf, hillclimb), prose, and judgment to Opus 5.5 at `xhigh`, and no role runs above `xhigh`. Outside a review panel, Fable 5.2 runs only when you name it or after two Opus 5.5 runs of the same brief fail. The default panel is Fable 5.2 / Opus 5.5 / Gemini 4 Neon `xhigh`. These are reference only. This port never picks a route or effort from them.
 
 **设置 / Settings.** 配置页是官方 Settings 里的 `settings.section`（id `pstack`，order 16）。只列出已登录路由；effort 只列出该路由 live `resolveModelInfo().reasoning.efforts`。空列表就是继承父对话。保存写同一份 overlay，不是第二份配置。
 

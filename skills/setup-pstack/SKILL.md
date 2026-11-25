@@ -25,14 +25,14 @@ Only live logged-in routes. Same rules as [`references/catalog.md`](references/c
 
 ## Roles and upstream recommendations
 
-The page shows each role with what upstream pstack 0.15.43 recommends. That is display copy, not a default: an unmapped role inherits this conversation. Map a role only to a route the page lists.
+The page shows each role with what upstream pstack 0.15.48 recommends. That is display copy, not a default: an unmapped role inherits this conversation. Map a role only to a route the page lists.
 
 | Role key | Upstream recommends |
 |---|---|
 | `feature`, `refactoring`, `bug-fix`, `perf-issue`, `hillclimb`, `judgment-and-prose` | `claude-opus-5-5-xhigh-fast` |
 | `swarm-workers` | `claude-opus-5-5-high-fast` |
-| `arena-runners`, `interrogate-reviewers` | `claude-fable-5-2-high`, `claude-opus-5-5-high-fast`, `gemini-4-carbon-high` |
-| `arena-cross-judge-pool` | `claude-opus-5-5-high-fast`, `gemini-4-carbon-high` |
+| `arena-runners`, `interrogate-reviewers` | `claude-fable-5-2-high`, `claude-opus-5-5-high-fast`, `gemini-4-neon-xhigh` |
+| `arena-cross-judge-pool` | `claude-opus-5-5-high-fast`, `gemini-4-neon-xhigh` |
 | `independent-verifier`, `poteto-agent`, `comment-sicko` | none, inherit unless you map one |
 
 Upstream 0.15.43 retired `hardest-tasks`, `how-explorer`, `how-explainer`, `why-investigators`, `why-synthesizer`, `reflect-tooling`, `reflect-judgment`, and `architect-runners`. The page hides them, an existing overlay keeps their saved values, and `pstack_spawn` refuses them.
