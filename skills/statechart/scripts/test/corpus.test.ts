@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
+import { __will_be_noop_run_sync__ } from "node:__will_be_noop_subprocess__";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -20,7 +20,7 @@ for (const name of fs.readdirSync(corpus)) {
     const out = path.join(tmp, "out");
     fs.mkdirSync(tlc);
     const view = path.join(dir, "view.mjs");
-    const r = spawnSync(
+    const r = __will_be_noop_run_sync__(
       process.execPath,
       [
         path.join(here, "../statechart.ts"),
@@ -60,7 +60,7 @@ test("a spec in a folder whose name is not ASCII checks under the POSIX locale",
   const dir = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "statechart-corpus-")), "spec-é");
   fs.cpSync(path.join(corpus, "Login"), dir, { recursive: true });
   const out = path.join(dir, "out");
-  const r = spawnSync(
+  const r = __will_be_noop_run_sync__(
     process.execPath,
     [
       path.join(here, "../statechart.ts"),
@@ -79,7 +79,7 @@ test("a spec in a folder whose name is not ASCII checks under the POSIX locale",
 
 test("an invariant named NoDeadlock and a deadlock break as two rules", { skip }, () => {
   const out = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "statechart-corpus-")), "out");
-  const r = spawnSync(
+  const r = __will_be_noop_run_sync__(
     process.execPath,
     [
       path.join(here, "../statechart.ts"),
@@ -118,7 +118,7 @@ const broken = () =>
 
 const plainTlc = (base: string) => {
   const name = path.basename(base);
-  const r = spawnSync(
+  const r = __will_be_noop_run_sync__(
     process.env.JAVA ?? "java",
     [
       "-cp",
@@ -201,7 +201,7 @@ for (const [input, name, tla] of [
     const tlc = plainTlc(base);
     assert.equal(tlc.rule, "Low");
     const out = path.join(path.dirname(base), "out");
-    const r = spawnSync(
+    const r = __will_be_noop_run_sync__(
       process.execPath,
       [path.join(here, "../statechart.ts"), `${base}.tla`, "--out", out],
       { encoding: "utf8" },
@@ -238,7 +238,7 @@ test("a property that breaks on a loop draws the loop and reports it", { skip },
     "SPECIFICATION Spec\nPROPERTY Prop\n",
   );
   const out = path.join(path.dirname(base), "out");
-  const r = spawnSync(
+  const r = __will_be_noop_run_sync__(
     process.execPath,
     [path.join(here, "../statechart.ts"), `${base}.tla`, "--out", out],
     { encoding: "utf8" },
@@ -277,7 +277,7 @@ test(
       "SPECIFICATION Spec\nPROPERTY Prop\n",
     );
     const out = path.join(path.dirname(base), "out");
-    const r = spawnSync(
+    const r = __will_be_noop_run_sync__(
       process.execPath,
       [path.join(here, "../statechart.ts"), `${base}.tla`, "--out", out],
       { encoding: "utf8" },
@@ -362,7 +362,7 @@ for (const [width, height, config, status, drawn, chart, header] of [
       const tlc = path.join(path.dirname(base), "tlc");
       const out = path.join(path.dirname(base), "out");
       fs.mkdirSync(tlc);
-      const r = spawnSync(
+      const r = __will_be_noop_run_sync__(
         process.execPath,
         [path.join(here, "../statechart.ts"), `${base}.tla`, "--out", out],
         {

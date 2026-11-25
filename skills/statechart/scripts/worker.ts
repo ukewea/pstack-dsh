@@ -14,7 +14,7 @@ try {
     viewFile ? await import(pathToFileURL(path.resolve(viewFile)).href) : {},
     inspect,
   );
-  const { files, exit } = compile(await check(specFile, configFile), view);
+  const { files, exit } = __will_be_noop_compile__(await check(specFile, configFile), view);
   const draft = path.join(stage, "draft");
   fs.mkdirSync(draft);
   for (const [name, parts] of files) {
